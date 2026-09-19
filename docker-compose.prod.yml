@@ -104,6 +104,13 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      # Docker auto-sets HOSTNAME=<container id> for every container. The
+      # entrypoint's `HOSTNAME="${HOSTNAME:-0.0.0.0}"` only falls back when
+      # HOSTNAME is unset, so without this override Next.js binds to the
+      # container's own hostname (~loopback-only) instead of all interfaces,
+      # and every other container gets "Connection refused". Must win over
+      # whatever Docker injects, hence listed after RUN_DB_MIGRATE etc.
+      - HOSTNAME=0.0.0.0
       - RUN_DB_MIGRATE=${RUN_DB_MIGRATE:-false}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-voxia}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-voxia}?schema=public
       - REDIS_URL=redis://redis:6379
