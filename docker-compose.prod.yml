@@ -1,0 +1,168 @@
+name: voxia
+
+# Isolated stack: its own project name, network, and volumes — does not touch
+# any other project's containers on this host. The only thing shared with the
+# rest of the VPS is the external network your existing nginx container is on
+# (see NGINX_EXTERNAL_NETWORK below), so nginx can reach `builder` and
+# `realtime` by container name.
+
+x-network: &network
+  networks:
+    - voxia-network
+
+x-rustfs-environment: &rustfs-environment
+  RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-voxia}
+  RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-secretkey}
+  RUSTFS_API_CORS_ALLOW_ORIGIN: ${RUSTFS_API_CORS_ALLOW_ORIGIN:-*}
+
+services:
+  postgres:
+    <<: *network
+    image: timescale/timescaledb-ha:pg18-all
+    restart: unless-stopped
+    volumes:
+      - db-data:/home/postgres/pgdata
+    command: ["postgres", "-c", "log_statement=none"]
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-voxia}
+      - POSTGRES_USER=${POSTGRES_USER:-voxia}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  redis:
+    <<: *network
+    image: redis:8-alpine
+    restart: unless-stopped
+    volumes:
+      - cache-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  filesystem:
+    <<: *network
+    image: rustfs/rustfs:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      <<: *rustfs-environment
+    volumes:
+      - filesystem-data:/data
+    healthcheck:
+      test: [
+          "CMD",
+          "sh",
+          "-c",
+          "curl -f http://127.0.0.1:9000/health && curl -f
+          http://127.0.0.1:9001/rustfs/console/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  filesystem-init:
+    <<: *network
+    image: rustfs/rc:latest
+    depends_on:
+      filesystem:
+        condition: service_healthy
+    environment:
+      <<: *rustfs-environment
+    entrypoint: >
+      /bin/sh -c "rc alias set local http://filesystem:9000
+      $${RUSTFS_ACCESS_KEY} $${RUSTFS_SECRET_KEY}; rc mb local/voxia
+      --ignore-existing; touch /tmp/empty && rc cp /tmp/empty
+      local/voxia/public/; rc anonymous set public local/voxia/public;"
+
+  javascript-executor:
+    <<: *network
+    build:
+      context: .
+      dockerfile: apps/javascript-executor/docker/Dockerfile
+    restart: unless-stopped
+    environment:
+      - JAVASCRIPT_EXECUTOR_TOKEN=${JAVASCRIPT_EXECUTOR_TOKEN:?JAVASCRIPT_EXECUTOR_TOKEN is required}
+      - MAX_CONCURRENCY=${JS_EXECUTOR_MAX_CONCURRENCY:-2}
+    # Deliberately no `ports:` — internal-only, reached by workers via the
+    # container name on voxia-network. Never publish this to the host or nginx.
+
+  builder:
+    networks:
+      - voxia-network
+      - nginx-shared
+    build:
+      context: .
+      dockerfile: apps/builder/docker/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - RUN_DB_MIGRATE=${RUN_DB_MIGRATE:-false}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-voxia}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-voxia}?schema=public
+      - REDIS_URL=redis://redis:6379
+      - S3_ENDPOINT=http://filesystem:9000
+      - JAVASCRIPT_EXECUTOR_URL=http://javascript-executor:3210
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      filesystem-init:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *network
+    build:
+      context: .
+      dockerfile: apps/worker/docker/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-voxia}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-voxia}?schema=public
+      - REDIS_URL=redis://redis:6379
+      - S3_ENDPOINT=http://filesystem:9000
+      - JAVASCRIPT_EXECUTOR_URL=http://javascript-executor:3210
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      builder:
+        condition: service_started
+
+  realtime:
+    networks:
+      - voxia-network
+      - nginx-shared
+    build:
+      context: .
+      dockerfile: apps/realtime/docker/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+networks:
+  voxia-network:
+    driver: bridge
+  # External network your existing nginx container is already attached to.
+  # Set NGINX_EXTERNAL_NETWORK in .env to its real name (`docker network ls`)
+  # before `docker compose up` — see the deploy runbook.
+  nginx-shared:
+    name: ${NGINX_EXTERNAL_NETWORK:?set NGINX_EXTERNAL_NETWORK in .env}
+    external: true
+
+volumes:
+  db-data:
+  filesystem-data:
+  cache-data:
