@@ -148,6 +148,13 @@ services:
     env_file: .env
     environment:
       - REDIS_URL=redis://redis:6379
+    # PartyKit's `partykit dev` (what the realtime image runs) reads config
+    # via findUpSync(".env") — an actual FILE on disk — not process.env, so
+    # `env_file:` above alone doesn't reach it. Mount the real .env at /app
+    # (the cwd the entrypoint cd's from, apps/realtime, walks up into) so it
+    # gets found. Read-only: this is config, PartyKit never writes to it.
+    volumes:
+      - ./.env:/app/.env:ro
     depends_on:
       redis:
         condition: service_healthy
