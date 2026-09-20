@@ -48,9 +48,9 @@ const buildDefaults = (helpItems: TenantHelpItemModel[]): TenantSettings => {
     appUrl: derived.appUrl,
     wsUrl: derived.wsUrl,
     storageUrl: derived.storageUrl,
-    name: "ChatbotX",
-    logoLightUrl: `${derived.appUrl}/brand/logo_white.svg`,
-    logoDarkUrl: `${derived.appUrl}/brand/logo_black.svg`,
+    name: "VoxIA",
+    logoLightUrl: `${derived.appUrl}/brand/logo.jpg`,
+    logoDarkUrl: `${derived.appUrl}/brand/logo.jpg`,
     faviconUrl: `${derived.appUrl}/brand/icon_black.svg`,
     theme: null,
     customJS: null,
@@ -88,8 +88,8 @@ const applyCustomDomain = (
     appUrl: derived.appUrl,
     wsUrl: derived.wsUrl,
     storageUrl: derived.storageUrl,
-    logoLightUrl: `${derived.appUrl}/brand/logo_white.svg`,
-    logoDarkUrl: `${derived.appUrl}/brand/logo_black.svg`,
+    logoLightUrl: `${derived.appUrl}/brand/logo.jpg`,
+    logoDarkUrl: `${derived.appUrl}/brand/logo.jpg`,
     faviconUrl: `${derived.appUrl}/brand/icon_black.svg`,
   }
 }
