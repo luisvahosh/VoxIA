@@ -44,9 +44,16 @@ const buildDefaults = (helpItems: TenantHelpItemModel[]): TenantSettings => {
     env.NEXT_PUBLIC_STORAGE_URL,
     { forceHttps: parseEnvBool(env.FORCE_PUBLIC_HTTPS) },
   )
+  // The realtime service may be deployed on its own host (e.g. a separate
+  // subdomain) instead of being reverse-proxied under the builder's own
+  // domain at `/ws/`. When set, this takes priority over the derived path so
+  // server-to-server broadcasts (packages/partysocket-config) reach it.
+  const wsUrl = env.NEXT_PUBLIC_INTERNAL_WS_URL
+    ? `${env.NEXT_PUBLIC_INTERNAL_WS_URL.replace(TRAILING_SLASH_RE, "")}/`
+    : derived.wsUrl
   return {
     appUrl: derived.appUrl,
-    wsUrl: derived.wsUrl,
+    wsUrl,
     storageUrl: derived.storageUrl,
     name: "VoxIA",
     logoLightUrl: `${derived.appUrl}/brand/logo.jpg`,

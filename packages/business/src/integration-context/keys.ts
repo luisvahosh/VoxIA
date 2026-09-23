@@ -9,6 +9,10 @@ export const integrationContextEnv = () =>
         .default("community"),
       NEXT_PUBLIC_BUILDER_URL: z.url().default("http://localhost:3123"),
       NEXT_PUBLIC_STORAGE_URL: z.url().optional(),
+      // Overrides the derived `${NEXT_PUBLIC_BUILDER_URL}/ws/` broadcast target
+      // when the realtime service is deployed on its own host/subdomain rather
+      // than reverse-proxied under the builder's own domain.
+      NEXT_PUBLIC_INTERNAL_WS_URL: z.url().optional(),
       FORCE_PUBLIC_HTTPS: z.stringbool().optional().default(false),
       REALTIME_BROADCAST_SECRET: z.string().min(32),
     },
