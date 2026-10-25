@@ -1,13 +1,15 @@
-import { appointmentService } from "@chatbotx.io/business"
+import { appointmentService, workspaceService } from "@chatbotx.io/business"
 import {
   signAppointmentCancelToken,
   verifyAppointmentScheduleToken,
 } from "@chatbotx.io/encryption"
 import { Badge } from "@chatbotx.io/ui/components/ui/badge"
 import type { Metadata } from "next"
+import { createTranslator, NextIntlClientProvider } from "next-intl"
 import { getTranslations } from "next-intl/server"
 import type { ReactNode } from "react"
 import { CancelAppointmentPanel } from "@/features/booking-webview/components/cancel-appointment-panel"
+import { loadWorkspaceMessages } from "@/i18n/workspace-locale"
 
 export const runtime = "nodejs"
 
@@ -42,6 +44,16 @@ export default async function BookingSchedulePage({
   try {
     const payload = await verifyAppointmentScheduleToken(token)
     const detail = await appointmentService.getScheduleDetailByToken(payload)
+    // The invitee has no locale cookie, so render in the workspace language.
+    const workspace = await workspaceService.findById({
+      id: detail.workspaceId,
+    })
+    const { locale, messages } = loadWorkspaceMessages(workspace.language)
+    const st = createTranslator({
+      locale,
+      messages,
+      namespace: "bookingWebview",
+    })
     const cancelToken = await signAppointmentCancelToken({
       appointmentId: detail.id,
       workspaceId: detail.workspaceId,
@@ -57,40 +69,42 @@ export default async function BookingSchedulePage({
           <Badge
             variant={detail.status === "scheduled" ? "default" : "outline"}
           >
-            {t(statusLabelKeyByStatus[detail.status])}
+            {st(statusLabelKeyByStatus[detail.status])}
           </Badge>
           <div className="space-y-2">
             <h1 className="font-semibold text-3xl tracking-normal">
               {detail.calendarName}
             </h1>
             <p className="text-muted-foreground">
-              {detail.confirmationMessage ?? t("schedule.defaultMessage")}
+              {detail.confirmationMessage ?? st("schedule.defaultMessage")}
             </p>
           </div>
         </div>
 
         <dl className="grid gap-4 rounded-md border p-4 sm:grid-cols-2">
-          <DetailItem label={t("schedule.fields.invitee")}>
-            {detail.contactName ?? t("schedule.unknownInvitee")}
+          <DetailItem label={st("schedule.fields.invitee")}>
+            {detail.contactName ?? st("schedule.unknownInvitee")}
           </DetailItem>
-          <DetailItem label={t("schedule.fields.time")}>
-            {formatDateTime(detail.startAt, detail.inviteeTimezone)}
+          <DetailItem label={st("schedule.fields.time")}>
+            {formatDateTime(detail.startAt, detail.inviteeTimezone, locale)}
           </DetailItem>
-          <DetailItem label={t("schedule.fields.timezone")}>
+          <DetailItem label={st("schedule.fields.timezone")}>
             {detail.inviteeTimezone}
           </DetailItem>
-          <DetailItem label={t("schedule.fields.location")}>
-            {formatLocation(detail.locationType, detail.locationDetail, t)}
+          <DetailItem label={st("schedule.fields.location")}>
+            {formatLocation(detail.locationType, detail.locationDetail, st)}
           </DetailItem>
         </dl>
 
         {detail.cancellable ? (
-          <CancelAppointmentPanel token={cancelToken} />
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <CancelAppointmentPanel token={cancelToken} />
+          </NextIntlClientProvider>
         ) : (
           <div className="rounded-md border bg-muted/40 p-4 text-sm">
-            <p className="font-medium">{t("cancel.unavailableTitle")}</p>
+            <p className="font-medium">{st("cancel.unavailableTitle")}</p>
             <p className="text-muted-foreground">
-              {t("cancel.unavailableDescription")}
+              {st("cancel.unavailableDescription")}
             </p>
           </div>
         )}
@@ -138,8 +152,8 @@ function PublicMessage({
   )
 }
 
-function formatDateTime(value: Date, timezone: string) {
-  return new Intl.DateTimeFormat(undefined, {
+function formatDateTime(value: Date, timezone: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "full",
     timeStyle: "short",
     timeZone: timezone,
@@ -149,7 +163,12 @@ function formatDateTime(value: Date, timezone: string) {
 function formatLocation(
   locationType: string,
   locationDetail: string | null,
-  t: Awaited<ReturnType<typeof getTranslations>>,
+  t: (
+    key:
+      | "schedule.locationTypes.phoneCall"
+      | "schedule.locationTypes.onlineMeeting"
+      | "schedule.locationTypes.inPerson",
+  ) => string,
 ) {
   if (locationDetail) {
     return locationDetail

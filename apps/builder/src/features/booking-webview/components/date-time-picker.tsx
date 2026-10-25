@@ -13,7 +13,7 @@ import {
 import { cn } from "@chatbotx.io/ui/lib/utils"
 import { CalendarClockIcon, Loader2Icon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { useAction } from "next-safe-action/hooks"
 import type { ReactNode } from "react"
 import { useEffect, useMemo, useState } from "react"
@@ -58,6 +58,15 @@ export function DateTimePicker({
 }: DateTimePickerProps) {
   const t = useTranslations("bookingWebview")
   const commonT = useTranslations()
+  const locale = useLocale()
+  const weekdayFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { weekday: "short" }),
+    [locale],
+  )
+  const monthFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { month: "short" }),
+    [locale],
+  )
   const router = useRouter()
   const [selectedTimezone, setSelectedTimezone] = useState(timezone)
   const [selectedDate, setSelectedDate] = useState<string | null>(() =>
@@ -256,6 +265,10 @@ export function DateTimePicker({
                   setSelectedSlot(null)
                   setStaleSlot(false)
                   setAvailabilityChanged(false)
+                }}
+                formatters={{
+                  formatWeekdayName: (date) => weekdayFormatter.format(date),
+                  formatMonthDropdown: (date) => monthFormatter.format(date),
                 }}
                 selected={selectedCalendarDate}
               />

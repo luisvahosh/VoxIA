@@ -1,9 +1,14 @@
-import { appointmentCalendarService } from "@chatbotx.io/business"
+import {
+  appointmentCalendarService,
+  workspaceService,
+} from "@chatbotx.io/business"
 import { verifyAppointmentWebviewToken } from "@chatbotx.io/encryption"
 import type { Metadata } from "next"
 import Script from "next/script"
+import { NextIntlClientProvider } from "next-intl"
 import { getTranslations } from "next-intl/server"
 import { DateTimePicker } from "@/features/booking-webview/components/date-time-picker"
+import { loadWorkspaceMessages } from "@/i18n/workspace-locale"
 
 export const runtime = "nodejs"
 
@@ -61,8 +66,15 @@ export default async function BookingPickerPage({
 
     const closeOnSuccess = Boolean(payload.nodeId)
 
+    // The contact opening this link has no locale cookie, so render it in the
+    // workspace language instead of the platform default.
+    const workspace = await workspaceService.findById({
+      id: payload.workspaceId,
+    })
+    const { locale, messages } = loadWorkspaceMessages(workspace.language)
+
     return (
-      <>
+      <NextIntlClientProvider locale={locale} messages={messages}>
         {closeOnSuccess ? (
           <Script
             src="https://connect.facebook.net/en_US/messenger.Extensions.js"
@@ -81,7 +93,7 @@ export default async function BookingPickerPage({
           timezone={calendar.timezone}
           token={token}
         />
-      </>
+      </NextIntlClientProvider>
     )
   } catch {
     return (
