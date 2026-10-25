@@ -15,7 +15,15 @@ import {
   type MessageHandlers,
   type OutgoingMessage,
 } from "@chatbotx.io/sdk"
-import { Audio, Document, Image, Text, Video } from "whatsapp-api-js/messages"
+import {
+  ActionCTA,
+  Audio,
+  Document,
+  Image,
+  Interactive,
+  Text,
+  Video,
+} from "whatsapp-api-js/messages"
 import type {
   ClientMessage,
   ServerErrorResponse,
@@ -34,6 +42,7 @@ import type {
   RawWhatsappMessage,
   WhatsappAuthValue,
 } from "../../../schema"
+import { generateBody } from "../interactive"
 import { clampText, messageLimits } from "../message-limits"
 import { generateOutgoingMessages as convertFlowStepCarousel } from "./send-carousel"
 import {
@@ -57,6 +66,25 @@ function buildLocationRequestMessage(bodyText: string): LocationRequestMessage {
   }
 }
 
+function* buildLinkQuickReplyMessages(
+  bodyText: string,
+  linkButtons: MessageButtonTemplate[],
+): Generator<ClientMessage> {
+  for (const [index, button] of linkButtons.entries()) {
+    if (button.buttonType !== "url") {
+      continue
+    }
+    const text = index === 0 ? bodyText.trim() : ""
+    yield new Interactive(
+      new ActionCTA(
+        clampText(button.label, messageLimits.buttonTitle),
+        button.url,
+      ),
+      generateBody(text || button.label),
+    )
+  }
+}
+
 function* convertMessageToWhatsappMessage(
   message: OutgoingMessage,
   quickReplies?: MessageButtonTemplate[],
@@ -70,7 +98,16 @@ function* convertMessageToWhatsappMessage(
   }
 
   if (message.contentType === contentTypes.enum.text) {
-    if (message.text) {
+    const linkButtons = (quickReplies ?? []).filter(
+      (button) => button.buttonType === "url" && button.url && button.label,
+    )
+    if (linkButtons.length > 0) {
+      // A url quick reply (e.g. the appointment booking picker) must open a
+      // page, so it is sent as a `cta_url` message instead of being dropped.
+      // Meta allows one url button per message: the first carries the text,
+      // any extra ones go out as their own bubble.
+      yield* buildLinkQuickReplyMessages(message.text ?? "", linkButtons)
+    } else if (message.text) {
       yield new Text(message.text)
     }
 

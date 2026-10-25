@@ -8,6 +8,7 @@ import {
   normalizeLanguage,
   resolveTenantSettings,
   SlotUnavailableException,
+  workspaceService,
 } from "@chatbotx.io/business"
 import { signAppointmentWebviewToken } from "@chatbotx.io/encryption"
 import {
@@ -51,13 +52,41 @@ const APPOINTMENT_SCHEDULING_COPY = {
     rangeButton: "Kiểm tra lịch trống",
     noSlotsFound: "Không có lịch trống.",
   },
+  es: {
+    bookingPrompt: "Elige el día y la hora de tu cita",
+    bookingButton: "Elegir hora",
+    rangePrompt: "Elige un rango de fechas para ver la disponibilidad",
+    rangeButton: "Ver disponibilidad",
+    noSlotsFound: "No hay horarios disponibles.",
+  },
 } satisfies Record<string, AppointmentSchedulingCopy>
 
-function getAppointmentSchedulingCopy(input: {
-  language?: string | null
-}): AppointmentSchedulingCopy {
-  return normalizeLanguage(input.language) === "vi"
-    ? APPOINTMENT_SCHEDULING_COPY.vi
+const isCopyLanguage = (
+  language: string | undefined,
+): language is keyof typeof APPOINTMENT_SCHEDULING_COPY =>
+  language !== undefined && language in APPOINTMENT_SCHEDULING_COPY
+
+/**
+ * The contact's own language wins; a contact with no known language (common on
+ * WhatsApp, which never reports one) falls back to the workspace language so a
+ * Spanish-speaking business doesn't send its patients English prompts.
+ */
+async function getAppointmentSchedulingCopy(input: {
+  contactLanguage?: string | null
+  workspaceId: string
+}): Promise<AppointmentSchedulingCopy> {
+  const contactLanguage = normalizeLanguage(input.contactLanguage)
+  if (isCopyLanguage(contactLanguage)) {
+    return APPOINTMENT_SCHEDULING_COPY[contactLanguage]
+  }
+  if (contactLanguage) {
+    return APPOINTMENT_SCHEDULING_COPY.en
+  }
+
+  const workspace = await workspaceService.findById({ id: input.workspaceId })
+  const workspaceLanguage = normalizeLanguage(workspace?.language)
+  return isCopyLanguage(workspaceLanguage)
+    ? APPOINTMENT_SCHEDULING_COPY[workspaceLanguage]
     : APPOINTMENT_SCHEDULING_COPY.en
 }
 
@@ -231,7 +260,10 @@ export async function appointmentScheduling(
   props: ExecuteStepProps<AppointmentSchedulingStepSchema>,
 ): Promise<ExecuteStepResult> {
   const { conversation, contactInbox, flowVersion, metadata, step } = props
-  const copy = getAppointmentSchedulingCopy(contactInbox)
+  const copy = await getAppointmentSchedulingCopy({
+    contactLanguage: contactInbox.language,
+    workspaceId: conversation.workspaceId,
+  })
   const baseLogContext = {
     workspaceId: conversation.workspaceId,
     conversationId: conversation.id,

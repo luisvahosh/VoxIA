@@ -9,6 +9,7 @@ const setValues = vi.fn()
 const setValueByKey = vi.fn()
 const findValue = vi.fn()
 const resolveTenantSettings = vi.fn()
+const findWorkspaceById = vi.fn()
 const signAppointmentWebviewToken = vi.fn()
 const chatQueueAdd = vi.fn()
 const loggerWarn = vi.fn()
@@ -39,6 +40,9 @@ vi.mock("@chatbotx.io/business", () => ({
   normalizeLanguage: (language: string | null | undefined) =>
     language?.split(LOCALE_SEPARATOR_RE)[0]?.toLowerCase(),
   resolveTenantSettings,
+  workspaceService: {
+    findById: findWorkspaceById,
+  },
   SlotUnavailableException: MockSlotUnavailableException,
   AppointmentAvailabilityChangedException:
     MockAppointmentAvailabilityChangedException,
@@ -195,6 +199,62 @@ describe("appointmentScheduling handler", () => {
       }),
     })
     expect(result).toEqual({ status: "wait", result: null })
+  })
+
+  test("book: uses Spanish copy for a Spanish-speaking contact", async () => {
+    resolveTenantSettings.mockResolvedValueOnce({
+      appUrl: "https://app.example.test",
+    })
+    signAppointmentWebviewToken.mockResolvedValueOnce("webview-token")
+
+    await appointmentScheduling({
+      ...baseProps,
+      contactInbox: { ...baseProps.contactInbox, language: "es_CL" },
+      step: {
+        id: "step-1",
+        stepType: "appointmentScheduling",
+        mode: "book",
+        calendarId: "calendar-1",
+        states: [],
+      },
+    } as never)
+
+    expect(findWorkspaceById).not.toHaveBeenCalled()
+    expect(chatQueueAdd).toHaveBeenCalledWith("sendChatMessage", {
+      type: "sendChatMessage",
+      data: expect.objectContaining({
+        text: "Elige el día y la hora de tu cita",
+        quickReplies: [expect.objectContaining({ label: "Elegir hora" })],
+      }),
+    })
+  })
+
+  test("book: falls back to the workspace language when the contact has none", async () => {
+    resolveTenantSettings.mockResolvedValueOnce({
+      appUrl: "https://app.example.test",
+    })
+    signAppointmentWebviewToken.mockResolvedValueOnce("webview-token")
+    findWorkspaceById.mockResolvedValueOnce({ language: "es" })
+
+    await appointmentScheduling({
+      ...baseProps,
+      contactInbox: { ...baseProps.contactInbox, language: null },
+      step: {
+        id: "step-1",
+        stepType: "appointmentScheduling",
+        mode: "book",
+        calendarId: "calendar-1",
+        states: [],
+      },
+    } as never)
+
+    expect(findWorkspaceById).toHaveBeenCalledWith({ id: "workspace-1" })
+    expect(chatQueueAdd).toHaveBeenCalledWith("sendChatMessage", {
+      type: "sendChatMessage",
+      data: expect.objectContaining({
+        text: "Elige el día y la hora de tu cita",
+      }),
+    })
   })
 
   test("still opens the picker for 'book' even when the contact already has a scheduled appointment (bookFromCustomField enforces the guard)", async () => {
