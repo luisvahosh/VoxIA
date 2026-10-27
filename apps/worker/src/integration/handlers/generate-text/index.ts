@@ -7,6 +7,7 @@ import {
 import { logProviderError } from "@chatbotx.io/business/error-log"
 import { isMessageStorageError } from "@chatbotx.io/database/errors"
 import type { AIGenerateTextSchema } from "@chatbotx.io/flow-config"
+import { contactVariableService } from "@chatbotx.io/variables"
 import { APICallError, streamText } from "ai"
 import { normalizeError } from "universal-error-normalizer"
 import { logger } from "../../../lib/logger"
@@ -17,20 +18,55 @@ import { resolveFlowAIModel } from "../shared/flow-ai-model-resolver"
 import type { ExecuteStepResult } from "../step"
 import { buildAIMessages } from "./messages"
 
+/**
+ * Fills `{{variables}}` (custom fields, contact data) in the prompt and the
+ * user message, like the AI Extract Data step does — without it the model
+ * receives the literal placeholder text instead of the field's value.
+ */
+async function renderStepVariables(
+  props: Pick<
+    ExecuteStepProps<AIGenerateTextSchema>,
+    "conversation" | "contactInbox" | "step"
+  >,
+): Promise<AIGenerateTextSchema> {
+  const { conversation, contactInbox, step } = props
+  const variables = await contactVariableService.getAll({
+    contactId: conversation.contactId,
+    contactInbox,
+    conversation,
+  })
+  const render = (text: string) =>
+    contactVariableService.replaceAll({ text, variables })
+
+  return {
+    ...step,
+    text: await render(step.text),
+    system: step.system ? await render(step.system) : step.system,
+  }
+}
+
 const ERROR_INSUFFICIENT_CREDITS =
   "AI provider has insufficient credits. Please check your billing settings."
 
 export async function handleAIGenerateText({
   conversation,
   contactInbox,
-  step,
+  step: rawStep,
 }: ExecuteStepProps<AIGenerateTextSchema>): Promise<ExecuteStepResult> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 120_000)
 
   let cleanupToolset: (() => Promise<void>) | undefined
 
+  // Re-assigned once variables are rendered; the catch block logs with it too.
+  let step = rawStep
+
   try {
+    step = await renderStepVariables({
+      conversation,
+      contactInbox,
+      step: rawStep,
+    })
     const messages = await buildAIMessages(conversation, contactInbox, step)
 
     const resolvedModel = await resolveFlowAIModel({
