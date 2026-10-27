@@ -2449,7 +2449,7 @@
     },
     "limitedDataUse": {
       "label": "Limited Data Use (US privacy)",
-      "description": "Restrict Meta's use of event data for users in applicable US states. Meta auto-detects the user's location from this event; no location data is sent by ChatbotX."
+      "description": "Restrict Meta's use of event data for users in applicable US states. Meta auto-detects the user's location from this event; no location data is sent by VoxIA."
     },
     "actionSource": {
       "label": "Action source",
@@ -2620,7 +2620,8 @@
       "import": "Import Flow",
       "export": "Export",
       "importStarted": "Flow is importing. Check the import history for results.",
-      "importJsonOnly": "JSON files only"
+      "importJsonOnly": "JSON files only",
+      "notifyAgent": "Notify agent on WhatsApp"
     },
     "splitTraffic": {
       "balanceHint": "The total sum must equal 100%.",
@@ -2736,6 +2737,14 @@
     "media": {
       "stepUnsupportedOnChannel": "This channel can't send this media type — the step is skipped there. Remove it, or switch the node to a channel that supports it.",
       "buttonsSkippedOnChannel": "This channel can't send buttons with a media message — they are skipped there. Put them on a following text step instead."
+    },
+    "notifyAgent": {
+      "phoneNumber": "Agent WhatsApp number",
+      "phoneNumberDescription": "With country code, e.g. +573001234567. The agent gets the contact, a summary and a link to answer without signing in.",
+      "templateName": "Approved template name",
+      "templateNameDescription": "Body variables in order: contact name, contact phone, summary, link. Leave empty to send plain text (only delivered if the agent wrote to this number in the last 24 hours).",
+      "templateLanguage": "Template language code",
+      "disableBot": "Pause the bot in this conversation"
     }
   },
   "folders": {
@@ -6065,5 +6074,23 @@
   },
   "accountFields": {
     "title": "Bot Fields"
+  },
+  "agentHandoff": {
+    "metadataTitle": "Conversation",
+    "subtitle": "Reply here: the customer receives it on the same chat.",
+    "contactLabel": "Customer",
+    "botLabel": "Assistant",
+    "agentLabel": "Team",
+    "attachment": "[attachment]",
+    "empty": "No messages yet.",
+    "placeholder": "Write your reply…",
+    "send": "Send",
+    "sendError": "The message could not be sent. Try again.",
+    "returnToBot": "Return to the assistant",
+    "returnConfirm": "The assistant will answer this customer again and this link will stop working.",
+    "closedTitle": "This conversation is back with the assistant",
+    "closedDescription": "The link no longer allows replies. If the customer needs a person again, you will get a new notice.",
+    "invalidTitle": "Link not valid",
+    "invalidDescription": "The link expired or is incorrect. Ask for a new notice."
   }
 }

@@ -2595,7 +2595,8 @@
       "import": "匯入流程",
       "export": "匯出",
       "importStarted": "流程匯入中，請稍後查看匯入紀錄以取得結果。",
-      "importJsonOnly": "僅限 JSON 檔案"
+      "importJsonOnly": "僅限 JSON 檔案",
+      "notifyAgent": "Notify agent on WhatsApp"
     },
     "splitTraffic": {
       "balanceHint": "總和必須等於 100%。",
@@ -2711,6 +2712,14 @@
     "media": {
       "stepUnsupportedOnChannel": "此管道無法傳送該類型的媒體，此步驟會被略過。請刪除該步驟，或將節點切換到支援的管道。",
       "buttonsSkippedOnChannel": "此管道無法隨媒體訊息傳送按鈕，按鈕會被略過。請改放在後面的文字步驟中。"
+    },
+    "notifyAgent": {
+      "phoneNumber": "Agent WhatsApp number",
+      "phoneNumberDescription": "With country code, e.g. +573001234567. The agent gets the contact, a summary and a link to answer without signing in.",
+      "templateName": "Approved template name",
+      "templateNameDescription": "Body variables in order: contact name, contact phone, summary, link. Leave empty to send plain text (only delivered if the agent wrote to this number in the last 24 hours).",
+      "templateLanguage": "Template language code",
+      "disableBot": "Pause the bot in this conversation"
     }
   },
   "folders": {
@@ -5674,7 +5683,7 @@
     },
     "limitedDataUse": {
       "label": "Limited Data Use (US privacy)",
-      "description": "Restrict Meta's use of event data for users in applicable US states. Meta auto-detects the user's location from this event; no location data is sent by ChatbotX."
+      "description": "Restrict Meta's use of event data for users in applicable US states. Meta auto-detects the user's location from this event; no location data is sent by VoxIA."
     },
     "actionSource": {
       "label": "動作來源",
@@ -6065,5 +6074,23 @@
   },
   "accountFields": {
     "title": "機器人欄位"
+  },
+  "agentHandoff": {
+    "metadataTitle": "Conversation",
+    "subtitle": "Reply here: the customer receives it on the same chat.",
+    "contactLabel": "Customer",
+    "botLabel": "Assistant",
+    "agentLabel": "Team",
+    "attachment": "[attachment]",
+    "empty": "No messages yet.",
+    "placeholder": "Write your reply…",
+    "send": "Send",
+    "sendError": "The message could not be sent. Try again.",
+    "returnToBot": "Return to the assistant",
+    "returnConfirm": "The assistant will answer this customer again and this link will stop working.",
+    "closedTitle": "This conversation is back with the assistant",
+    "closedDescription": "The link no longer allows replies. If the customer needs a person again, you will get a new notice.",
+    "invalidTitle": "Link not valid",
+    "invalidDescription": "The link expired or is incorrect. Ask for a new notice."
   }
 }

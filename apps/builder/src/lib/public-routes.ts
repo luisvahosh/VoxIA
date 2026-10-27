@@ -24,6 +24,8 @@ export const PUBLIC_ROUTES = [
   "/email-topic",
   "/extensions",
   "/booking",
+  // Agent handoff page: authorised by the signed token in its query string.
+  "/handoff",
   "/portal/redeem",
   "/webchat",
   "/t/",

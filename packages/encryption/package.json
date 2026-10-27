@@ -20,6 +20,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./agent-handoff-token": "./src/agent-handoff-token.ts",
     "./appointment-cancel-token": "./src/appointment-cancel-token.ts",
     "./appointment-schedule-token": "./src/appointment-schedule-token.ts",
     "./appointment-webview-token": "./src/appointment-webview-token.ts",

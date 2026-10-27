@@ -2296,7 +2296,8 @@
       "import": "Importar fluxo",
       "export": "Exportar",
       "importStarted": "O fluxo está a ser importado. Consulte o histórico de importações para ver os resultados.",
-      "importJsonOnly": "Apenas ficheiros JSON"
+      "importJsonOnly": "Apenas ficheiros JSON",
+      "notifyAgent": "Notificar agente pelo WhatsApp"
     },
     "splitTraffic": {
       "balanceHint": "A soma total deve ser igual a 100%.",
@@ -2412,6 +2413,14 @@
     "media": {
       "stepUnsupportedOnChannel": "Este canal não consegue enviar este tipo de multimédia — o passo é ignorado aí. Remova-o ou mude o nó para um canal compatível.",
       "buttonsSkippedOnChannel": "Este canal não consegue enviar botões juntamente com uma mensagem multimédia — são ignorados aí. Coloque-os num passo de texto seguinte."
+    },
+    "notifyAgent": {
+      "phoneNumber": "WhatsApp do agente",
+      "phoneNumberDescription": "Com código do país, ex. +5511912345678. O agente recebe o contato, um resumo e um link para responder sem entrar.",
+      "templateName": "Nome do modelo aprovado",
+      "templateNameDescription": "Variáveis do corpo em ordem: nome do contato, telefone do contato, resumo, link. Deixe vazio para enviar texto simples (só é entregue se o agente escreveu para este número nas últimas 24 horas).",
+      "templateLanguage": "Código de idioma do modelo",
+      "disableBot": "Pausar o bot nesta conversa"
     }
   },
   "folders": {
@@ -5674,7 +5683,7 @@
     },
     "limitedDataUse": {
       "label": "Limited Data Use (US privacy)",
-      "description": "Restrict Meta's use of event data for users in applicable US states. Meta auto-detects the user's location from this event; no location data is sent by ChatbotX."
+      "description": "Restrict Meta's use of event data for users in applicable US states. Meta auto-detects the user's location from this event; no location data is sent by VoxIA."
     },
     "actionSource": {
       "label": "Origem da ação",
@@ -6065,5 +6074,23 @@
   },
   "accountFields": {
     "title": "Campos do bot"
+  },
+  "agentHandoff": {
+    "metadataTitle": "Conversa",
+    "subtitle": "Responda aqui: o cliente recebe no mesmo chat.",
+    "contactLabel": "Cliente",
+    "botLabel": "Assistente",
+    "agentLabel": "Equipe",
+    "attachment": "[anexo]",
+    "empty": "Ainda não há mensagens.",
+    "placeholder": "Escreva sua resposta…",
+    "send": "Enviar",
+    "sendError": "Não foi possível enviar a mensagem. Tente novamente.",
+    "returnToBot": "Devolver ao assistente",
+    "returnConfirm": "O assistente voltará a responder este cliente e este link deixará de funcionar.",
+    "closedTitle": "Esta conversa voltou para o assistente",
+    "closedDescription": "O link não permite mais respostas. Se o cliente precisar de uma pessoa de novo, você receberá um novo aviso.",
+    "invalidTitle": "Link inválido",
+    "invalidDescription": "O link expirou ou está incorreto. Peça um novo aviso."
   }
 }

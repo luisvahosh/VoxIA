@@ -2433,7 +2433,8 @@
       "import": "استيراد التدفق",
       "export": "تصدير",
       "importStarted": "جارٍ استيراد التدفق. يرجى مراجعة سجل الاستيراد للحصول على النتائج.",
-      "importJsonOnly": "ملفات JSON فقط"
+      "importJsonOnly": "ملفات JSON فقط",
+      "notifyAgent": "Notify agent on WhatsApp"
     },
     "splitTraffic": {
       "balanceHint": "يجب أن يساوي مجموع النسب 100%.",
@@ -2549,6 +2550,14 @@
     "media": {
       "stepUnsupportedOnChannel": "لا يمكن لهذه القناة إرسال هذا النوع من الوسائط — سيتم تخطي الخطوة. أزِلها أو غيِّر قناة العقدة إلى قناة تدعمها.",
       "buttonsSkippedOnChannel": "لا يمكن لهذه القناة إرسال أزرار مع رسالة وسائط — سيتم تخطيها. أضِفها إلى خطوة نصية تالية بدلاً من ذلك."
+    },
+    "notifyAgent": {
+      "phoneNumber": "Agent WhatsApp number",
+      "phoneNumberDescription": "With country code, e.g. +573001234567. The agent gets the contact, a summary and a link to answer without signing in.",
+      "templateName": "Approved template name",
+      "templateNameDescription": "Body variables in order: contact name, contact phone, summary, link. Leave empty to send plain text (only delivered if the agent wrote to this number in the last 24 hours).",
+      "templateLanguage": "Template language code",
+      "disableBot": "Pause the bot in this conversation"
     }
   },
   "folders": {
@@ -3228,8 +3237,8 @@
   },
   "coexist": {
     "title": "هل تريد مزامنة جهات الاتصال وسجل الدردشة الحاليين؟",
-    "descriptionWhatsapp": "عند التفعيل، سيستورد ChatbotX جهات الاتصال وما يصل إلى 6 أشهر من سجل الدردشة من رقم WhatsApp هذا.",
-    "descriptionMessenger": "عند التفعيل، سيستورد ChatbotX جهات اتصال Messenger الحالية وما يصل إلى 3 أشهر من سجل المحادثات من هذه الصفحة.",
+    "descriptionWhatsapp": "عند التفعيل، سيستورد VoxIA جهات الاتصال وما يصل إلى 6 أشهر من سجل الدردشة من رقم WhatsApp هذا.",
+    "descriptionMessenger": "عند التفعيل، سيستورد VoxIA جهات اتصال Messenger الحالية وما يصل إلى 3 أشهر من سجل المحادثات من هذه الصفحة.",
     "descriptionInstagram": "When enabled, existing Instagram contacts and up to 3 months of conversation history will be imported from this Instagram account.",
     "enable": "تفعيل المزامنة",
     "decline": "عدم المزامنة",
@@ -3980,8 +3989,8 @@
     "unknownContact": "جهة اتصال غير معروفة"
   },
   "developerAccessToken": {
-    "title": "رمز الوصول إلى ChatbotX API",
-    "description": "أنشئ رمزًا للسماح لمساحة عملك بالوصول إلى واجهات ChatbotX API. احتفظ بسرية هذا الرمز ولا تشاركه مع أي شخص.",
+    "title": "رمز الوصول إلى VoxIA API",
+    "description": "أنشئ رمزًا للسماح لمساحة عملك بالوصول إلى واجهات VoxIA API. احتفظ بسرية هذا الرمز ولا تشاركه مع أي شخص.",
     "createDialogTitle": "إنشاء رمز API",
     "namePlaceholder": "مثال: تكامل Zapier",
     "empty": "لا توجد رموز API حتى الآن.",
@@ -5674,7 +5683,7 @@
     },
     "limitedDataUse": {
       "label": "Limited Data Use (US privacy)",
-      "description": "Restrict Meta's use of event data for users in applicable US states. Meta auto-detects the user's location from this event; no location data is sent by ChatbotX."
+      "description": "Restrict Meta's use of event data for users in applicable US states. Meta auto-detects the user's location from this event; no location data is sent by VoxIA."
     },
     "actionSource": {
       "label": "مصدر الإجراء",
@@ -6065,5 +6074,23 @@
   },
   "accountFields": {
     "title": "حقول البوت"
+  },
+  "agentHandoff": {
+    "metadataTitle": "Conversation",
+    "subtitle": "Reply here: the customer receives it on the same chat.",
+    "contactLabel": "Customer",
+    "botLabel": "Assistant",
+    "agentLabel": "Team",
+    "attachment": "[attachment]",
+    "empty": "No messages yet.",
+    "placeholder": "Write your reply…",
+    "send": "Send",
+    "sendError": "The message could not be sent. Try again.",
+    "returnToBot": "Return to the assistant",
+    "returnConfirm": "The assistant will answer this customer again and this link will stop working.",
+    "closedTitle": "This conversation is back with the assistant",
+    "closedDescription": "The link no longer allows replies. If the customer needs a person again, you will get a new notice.",
+    "invalidTitle": "Link not valid",
+    "invalidDescription": "The link expired or is incorrect. Ask for a new notice."
   }
 }

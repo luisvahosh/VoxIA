@@ -69,11 +69,11 @@ import {
 } from "./messenger-user-menu"
 import { handleSendMetaCapiEventStep } from "./meta-conversions/send-meta-capi-event-step-handler"
 import { addOrUpdateMoosendContact } from "./moosend-handler"
+import { handleNotifyAgent } from "./notify-agent"
 import { questionnaires } from "./questionnaires"
 import { sendEmail } from "./send-email"
 import { addSendGridContact } from "./sendgrid-handler"
 import { scheduleSmartDelayResume } from "./smart-delay"
-
 import {
   clearSpreadsheetRow,
   getSpreadsheetRandomRow,
@@ -81,7 +81,6 @@ import {
   sendSpreadsheetData,
   updateSpreadsheetRow,
 } from "./spreadsheet-handler"
-
 import {
   stepArchiveConversation,
   stepAssignConversation,
@@ -441,7 +440,7 @@ export const flowStepHandlers: Record<
   [stepTypes.enum.klaviyoSyncProfile]: syncKlaviyoProfile,
   [stepTypes.enum.moosendCreateContact]: addOrUpdateMoosendContact,
   [stepTypes.enum.sendGridAddContact]: addSendGridContact,
-  [stepTypes.enum.notifyAgent]: undefined,
+  [stepTypes.enum.notifyAgent]: handleNotifyAgent,
   [stepTypes.enum.openWebsite]: undefined,
   [stepTypes.enum.aiAnalyzeImage]: handleAIAnalyzeImage,
   [stepTypes.enum.aiDeleteMessageHistory]: handleAIDeleteMessageHistory,

@@ -16,6 +16,11 @@ describe("isPublicRoute", () => {
     expect(isPublicRoute("/api/contacts")).toBe(true)
   })
 
+  test("/handoff is public; its signed token is the authorisation", () => {
+    expect(isPublicRoute("/handoff")).toBe(true)
+    expect(isPublicRoute("/handoffs")).toBe(false)
+  })
+
   test("an authenticated app path is not public", () => {
     expect(isPublicRoute("/space/1/inbox")).toBe(false)
     expect(isPublicRoute("/channels/create")).toBe(false)
