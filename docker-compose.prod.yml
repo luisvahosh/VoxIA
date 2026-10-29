@@ -47,7 +47,14 @@ services:
       retries: 5
 
   filesystem:
-    <<: *network
+    # Also on nginx-shared so the browser's presigned uploads (PUT straight to
+    # S3) can reach it through nginx — see docker/nginx/voxia.learnway.co.conf.
+    # Aliased so it can't collide with another stack's `filesystem` there.
+    networks:
+      voxia-network:
+      nginx-shared:
+        aliases:
+          - voxia-filesystem
     image: rustfs/rustfs:latest
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -114,6 +121,9 @@ services:
       - RUN_DB_MIGRATE=${RUN_DB_MIGRATE:-false}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-voxia}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-voxia}?schema=public
       - REDIS_URL=redis://redis:6379
+      # Server-side S3 calls stay internal. Presigned URLs (which the browser
+      # PUTs/GETs) are signed for S3_PUBLIC_ENDPOINT from .env instead — the
+      # public origin nginx routes /<bucket>/ from (https://voxia.learnway.co).
       - S3_ENDPOINT=http://filesystem:9000
       - JAVASCRIPT_EXECUTOR_URL=http://javascript-executor:3210
     depends_on:

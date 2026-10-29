@@ -16,6 +16,10 @@ import { buildCopySource } from "./copy-source"
 
 const env = keys()
 
+// Presigned URLs are handed to browsers and third parties, so they must be
+// signed for a host those can reach — not an internal-only S3_ENDPOINT.
+const presignEndpoint = () => env.S3_PUBLIC_ENDPOINT ?? env.S3_ENDPOINT
+
 export class Uploader {
   readonly #client: S3Client
   readonly #bucketName: string
@@ -94,7 +98,7 @@ export class Uploader {
     return (
       await client.sign(
         new Request(
-          `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${filePath}?X-Amz-Expires=${5 * 60}`,
+          `${presignEndpoint()}/${env.S3_BUCKET}/${filePath}?X-Amz-Expires=${5 * 60}`,
           {
             method: "PUT",
           },
@@ -120,7 +124,7 @@ export class Uploader {
     return (
       await client.sign(
         new Request(
-          `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${filePath}?X-Amz-Expires=${expiresInSeconds}`,
+          `${presignEndpoint()}/${env.S3_BUCKET}/${filePath}?X-Amz-Expires=${expiresInSeconds}`,
           {
             method: "GET",
           },

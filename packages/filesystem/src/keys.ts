@@ -5,6 +5,8 @@ export const keys = () =>
   createEnv({
     server: {
       S3_ENDPOINT: z.url().optional(),
+      /** Browser-facing origin for presigned URLs, when S3_ENDPOINT is only reachable inside the deployment (e.g. a Docker hostname). */
+      S3_PUBLIC_ENDPOINT: z.url().optional(),
       S3_ACCESS_KEY_ID: z.string().min(1).optional(),
       S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
       S3_REGION: z.string().min(1),
