@@ -13,7 +13,7 @@ import {
 import { resolveHandoff } from "@/features/agent-handoff/lib/resolve-handoff"
 import { loadWorkspaceMessages } from "@/i18n/workspace-locale"
 
-const LEADING_PLUS = /^\+/
+const PHONE_NUMBER = /^\+?\d{6,15}$/
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -95,9 +95,12 @@ export default async function AgentHandoffPage({
     }))
 
   const contactName = contact?.fullName?.trim() || contactInbox.sourceId
+  // A WhatsApp sourceId is the phone number, unless the contact is known only
+  // by its business-scoped user ID (e.g. "CO.1827…", usernames).
   const contactPhone =
-    contactInbox.channel === "whatsapp"
-      ? `+${contactInbox.sourceId.replace(LEADING_PLUS, "")}`
+    contactInbox.channel === "whatsapp" &&
+    PHONE_NUMBER.test(contactInbox.sourceId)
+      ? `+${contactInbox.sourceId.replace("+", "")}`
       : contact?.phoneNumber
 
   return (

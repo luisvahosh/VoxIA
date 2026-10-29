@@ -13,7 +13,7 @@ import { logger } from "../../lib/logger"
 import type { ExecuteStepProps } from "./flow-utils"
 import type { ExecuteStepResult } from "./step"
 
-const LEADING_PLUS = /^\+/
+const PHONE_NUMBER = /^\+?\d{6,15}$/
 
 const SUMMARY_MESSAGE_COUNT = 3
 const RECENT_MESSAGE_LIMIT = 15
@@ -92,10 +92,13 @@ export async function handleNotifyAgent(
       id: conversation.contactId,
     })
     const contactName = contact?.fullName?.trim() || contactInbox.sourceId
+    // A WhatsApp sourceId is the phone number, unless the contact is known
+    // only by its business-scoped user ID (e.g. "CO.1827…", usernames).
     const contactPhone =
-      contactInbox.channel === "whatsapp"
-        ? `+${contactInbox.sourceId.replace(LEADING_PLUS, "")}`
-        : (contact?.phoneNumber ?? contactInbox.channel)
+      contactInbox.channel === "whatsapp" &&
+      PHONE_NUMBER.test(contactInbox.sourceId)
+        ? `+${contactInbox.sourceId.replace("+", "")}`
+        : contact?.phoneNumber || contactInbox.channel
     const summary = await buildSummary({
       workspaceId,
       conversationId: conversation.id,
