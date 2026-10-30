@@ -1,0 +1,52 @@
+// Paso "Execute JavaScript Code" del flujo de derivación.
+// Por cliente, cambia solo `zona` y `horario` (0 = domingo … 6 = sábado; día ausente = cerrado).
+// Devuelve: en_horario ("si"/"no"), proximo_horario (ISO) y proxima_atencion (texto).
+const zona = "America/Santiago";
+const horario = {
+  1: ["08:00", "20:00"],
+  2: ["08:00", "20:00"],
+  3: ["08:00", "20:00"],
+  4: ["08:00", "20:00"],
+  5: ["08:00", "19:00"],
+  6: ["09:00", "13:00"],
+};
+const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+const ahora = new Date();
+const p = {};
+new Intl.DateTimeFormat("en-US", {
+  timeZone: zona,
+  hourCycle: "h23",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+})
+  .formatToParts(ahora)
+  .forEach((x) => {
+    p[x.type] = Number(x.value);
+  });
+
+const localMs = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+const offsetMs = localMs - Math.floor(ahora.getTime() / 1000) * 1000;
+const hoy = new Date(Date.UTC(p.year, p.month - 1, p.day));
+const hhmm = String(p.hour).padStart(2, "0") + ":" + String(p.minute).padStart(2, "0");
+
+const rango = horario[hoy.getUTCDay()];
+if (rango && hhmm >= rango[0] && hhmm < rango[1]) {
+  return { en_horario: "si", proximo_horario: ahora.toISOString(), proxima_atencion: "" };
+}
+
+for (let i = 0; i <= 7; i++) {
+  const d = new Date(hoy.getTime() + i * 86400000);
+  const r = horario[d.getUTCDay()];
+  if (!r || (i === 0 && hhmm >= r[0])) continue;
+  const [h, m] = r[0].split(":").map(Number);
+  const inicio = new Date(d.getTime() + (h * 60 + m) * 60000 - offsetMs);
+  const nombre = i === 0 ? "hoy" : i === 1 ? "mañana" : "el " + dias[d.getUTCDay()];
+  return { en_horario: "no", proximo_horario: inicio.toISOString(), proxima_atencion: nombre + " a las " + r[0] };
+}
+
+return { en_horario: "si", proximo_horario: ahora.toISOString(), proxima_atencion: "" };
