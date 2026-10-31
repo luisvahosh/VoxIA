@@ -1,0 +1,28 @@
+name: npm
+
+# Nginx Proxy Manager for this host, in its own stack so it can route several
+# projects. Each project joins proxy-net. The admin UI (81) stays on localhost:
+# Docker-published ports bypass ufw. Reach it through an SSH tunnel.
+
+services:
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:2.12.6
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "127.0.0.1:81:81"
+    volumes:
+      - npm-data:/data
+      - npm-letsencrypt:/etc/letsencrypt
+    networks:
+      - proxy-net
+
+networks:
+  proxy-net:
+    name: proxy-net
+
+volumes:
+  npm-data:
+  npm-letsencrypt:

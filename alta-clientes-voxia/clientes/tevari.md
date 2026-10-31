@@ -34,4 +34,4 @@ Hay un portafolio extra llamado "Tevari" (ID 1444098327232248) del primer intent
 - [ ] Usar un número de vendedor distinto al celular de pruebas.
 - [ ] Conectar la salida Error del aviso a nota + asignación.
 - [ ] Cambiar el sitio web del perfil de WhatsApp (hoy learnway.co) si Tevari tiene otro.
-- [ ] Derivar solo en horario laboral: mismo horario y zona que San Rafael (Chile), usar `../03-horario-laboral.txt` sin cambios.
+- [x] Derivar solo en horario laboral: zona de Chile y sin atención los sábados. El horario publicado está en el bloque Execute JavaScript del flujo de derivación.
