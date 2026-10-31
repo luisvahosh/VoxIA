@@ -1,0 +1,2 @@
+# 06:00 UTC = 03:00 Chile. Copy to /etc/cron.d/voxia-backup on the new server.
+0 6 * * * root bash /root/voxia/docker/backup/voxia-backup.sh >> /var/log/voxia-backup.log 2>&1

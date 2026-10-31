@@ -78,7 +78,7 @@ docker compose -f docker-compose.prod.yml stop
 
 for v in db-data cache-data filesystem-data; do
   docker run --rm -v voxia_$v:/from:ro alpine tar -C /from -czf - . \
-    | ssh root@179.197.91.51 "docker volume create voxia_$v >/dev/null && \
+    | ssh -i ~/.ssh/voxia_migracion root@179.197.91.51 "docker volume create voxia_$v >/dev/null && \
       docker run --rm -i -v voxia_$v:/to alpine sh -c 'rm -rf /to/* && tar -C /to -xzf -'"
 done
 ```
@@ -147,7 +147,9 @@ $COMPOSE down
 
 Si falla algo y no se corrige en 30 minutos: apaga el worker nuevo, enciende el servidor actual y regresa el DNS a la IP anterior. Lo que entró al servidor nuevo durante ese tiempo no vuelve al anterior.
 
-Deja el servidor actual apagado 7 días antes de darlo de baja.
+Deja VoxIA apagado 7 días en el servidor actual antes de dar de baja sus datos. Los demás proyectos de ese servidor siguen encendidos.
+
+Al terminar la migración, quita la llave temporal: en el servidor actual borra `~/.ssh/voxia_migracion*`, y en el nuevo borra de `~/.ssh/authorized_keys` la línea que termina en `root@srv1747749`. Después haz privado el repositorio de GitHub y crea una llave de solo lectura para el servidor nuevo.
 
 ## 9. Restaurar un respaldo de Postgres
 
@@ -164,3 +166,51 @@ psql -U voxia -d voxia -c "SELECT timescaledb_post_restore();"
 Este procedimiento recupera solo Postgres. Los archivos, Redis y el `.env` se respaldan aparte.
 
 Si pegas comandos en la consola y se pierde texto, pégalos por líneas cortas.
+
+## 10. Entrar a Nginx Proxy Manager
+
+El panel no está publicado en internet: el puerto 81 solo escucha dentro del servidor. Para entrar, abre un túnel SSH cada vez que lo necesites.
+
+1. En PowerShell, en tu PC:
+
+```bash
+ssh -L 8181:127.0.0.1:81 root@179.197.91.51
+```
+
+2. Escribe la contraseña del servidor y deja esa ventana abierta.
+3. Abre `http://localhost:8181` e inicia sesión con el usuario del panel. La contraseña está en tu gestor, no en este documento.
+4. Al terminar, cierra el panel y escribe `exit` en la ventana del túnel.
+
+Si no carga:
+
+- Revisa que la ventana del túnel siga abierta y conectada.
+- Si el puerto 8181 está ocupado en tu PC, usa otro, por ejemplo `-L 8282:127.0.0.1:81`, y abre `http://localhost:8282`.
+- En el servidor, comprueba que esté encendido: `docker ps --filter name=nginx-proxy-manager`.
+- Si se apagó: `docker compose -f ~/voxia/docker/npm/docker-compose.yml up -d`.
+
+Si se pierde la contraseña, se restablece en la base de datos interna del panel. No abras el puerto 81 en el firewall para resolverlo.
+
+## 11. Respaldos diarios en Backblaze B2
+
+`docker/backup/voxia-backup.sh` corre a las 06:00 UTC (03:00 de Chile). Cifra con `age` y sube Postgres, los archivos y el `.env` al bucket privado `voxia-respaldos`. El servidor solo guarda la llave pública; la privada está en tu gestor. Sin ella, los respaldos no se pueden abrir.
+
+El bucket tiene retención por defecto de 7 días y una regla que oculta cada archivo a los 7 días y lo borra 1 día después. Backblaze la aplica en modo Compliance: nadie puede borrar una copia antes de que venza. Probado el 2026-10-31: un archivo subido quedó en Compliance por 7 días, y una llave de prueba no pudo borrar otro protegido.
+
+La llave del servidor es de tipo Write Only, limitada a `voxia-respaldos`. No puede listar ni leer archivos, así que para recuperar crea una llave temporal de lectura.
+
+Actívalo después del corte:
+
+```bash
+cp ~/voxia/docker/backup/voxia-backup.cron /etc/cron.d/voxia-backup
+bash ~/voxia/docker/backup/voxia-backup.sh
+tail -5 /var/log/voxia-backup.log
+```
+
+Para recuperar una copia, guarda la llave privada en `/root/age.key` (y bórrala al terminar) y descarga con esa llave temporal, configurada en un remoto de `rclone` llamado `voxia-b2-lectura`:
+
+```bash
+rclone copy voxia-b2-lectura:voxia-respaldos/<FECHA>/ ~/recuperar/
+age -d -i /root/age.key -o ~/recuperar/postgres.dump ~/recuperar/postgres.dump.age
+```
+
+Luego restaura Postgres como indica la parte 9. Haz esta prueba una vez al mes.
