@@ -169,20 +169,21 @@ function sortConnectableFirst(
 
 const FACEBOOK_OAUTH_BASE = "https://www.facebook.com"
 
+/**
+ * Only the scopes VoxIA submits to Meta App Review for Messenger. Meta rejects
+ * a review when the login dialog asks for more than the screencast shows.
+ * Comment automation (`pages_manage_engagement`, `pages_read_user_content`),
+ * post publishing, ads (`pages_manage_ads`) and CAPI (`page_events`) are off
+ * until those scopes are reviewed and added back here.
+ */
 export const MESSENGER_SCOPES = [
   "email",
   "public_profile",
-  "pages_manage_ads",
   "pages_manage_metadata",
   "pages_read_engagement",
-  "pages_read_user_content",
-  "pages_manage_posts",
-  "pages_manage_engagement",
   "pages_messaging",
   "pages_show_list",
   "business_management",
-  "pages_utility_messaging",
-  "page_events",
 ]
 
 /**
