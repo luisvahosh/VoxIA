@@ -69,7 +69,9 @@ async function syncWithLock(
         calendar: appointment.calendar,
       })
       const eventId = createDeterministicGoogleEventId(appointment.id)
-      await createGoogleCalendarEvent({
+      // Every appointment gets its own Google Meet room: the meeting place
+      // for online calendars, a fallback for in-person or phone ones.
+      const created = await createGoogleCalendarEvent({
         workspaceId: data.workspaceId,
         integrationId: destination.integrationId,
         calendarId: destination.providerCalendarId,
@@ -81,12 +83,20 @@ async function syncWithLock(
         endAt: appointment.endAt.toISOString(),
         timeZone: appointment.calendar.timezone,
         attendees: rendered.attendees,
+        createMeetLink: true,
       })
       const updated =
         await appointmentService.markExternalCreateSucceededIfScheduled({
           workspaceId: data.workspaceId,
           appointmentId: appointment.id,
           externalEventId: eventId,
+          locationDetail: created.meetLink
+            ? buildLocationWithMeetLink({
+                locationType: appointment.locationType,
+                locationDetail: appointment.locationDetail,
+                meetLink: created.meetLink,
+              })
+            : undefined,
         })
       if (!updated) {
         await cancelGoogleCalendarEvent({
@@ -181,6 +191,32 @@ async function resolveDestination(input: {
     }
   }
   return { integrationId, providerCalendarId: connection.providerCalendarId }
+}
+
+// Shown to the patient on the booking page. VoxIA's clinics are
+// Spanish-speaking and the appointment carries no locale to pick from.
+const MEET_FALLBACK_NOTE =
+  "Si no alcanzas a llegar, puedes conectarte por videollamada:"
+
+/**
+ * The location stored on the appointment once its Meet room exists. Online
+ * appointments meet in the room itself; in-person and phone ones keep their
+ * address and add the room as a fallback.
+ */
+export function buildLocationWithMeetLink(input: {
+  locationType: string
+  locationDetail: string | null
+  meetLink: string
+}): string {
+  const detail = input.locationDetail?.trim()
+  if (input.locationType === "onlineMeeting") {
+    return input.meetLink
+  }
+  if (detail?.includes(input.meetLink)) {
+    return detail
+  }
+  const fallback = `${MEET_FALLBACK_NOTE} ${input.meetLink}`
+  return detail ? `${detail}\n${fallback}` : fallback
 }
 
 async function markFailed(data: JobSyncExternalCalendarEventData) {

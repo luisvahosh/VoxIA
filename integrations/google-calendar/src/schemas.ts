@@ -75,9 +75,10 @@ export type GoogleCalendarActions = {
         timeZone: string
         eventId: string
         attendees?: GoogleCalendarEventAttendee[]
+        createMeetLink?: boolean
       }
     },
-    { eventId: string }
+    { eventId: string; meetLink?: string }
   >
   cancelEvent: Handler<
     {

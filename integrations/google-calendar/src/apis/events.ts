@@ -8,7 +8,13 @@ import type {
 
 const eventResponseSchema = z.object({
   id: z.string().min(1),
+  hangoutLink: z.string().min(1).nullish(),
 })
+
+const toCreateEventResult = (data: unknown) => {
+  const parsed = eventResponseSchema.parse(data)
+  return { eventId: parsed.id, meetLink: parsed.hangoutLink ?? undefined }
+}
 
 export async function createEvent({
   auth,
@@ -21,6 +27,7 @@ export async function createEvent({
   timeZone,
   attendees,
   eventId,
+  createMeetLink,
 }: {
   auth: GoogleCalendarAuthValue
   calendarId: string
@@ -32,13 +39,16 @@ export async function createEvent({
   timeZone: string
   attendees?: GoogleCalendarEventAttendee[]
   eventId: string
-}): Promise<{ eventId: string }> {
+  createMeetLink?: boolean
+}): Promise<{ eventId: string; meetLink?: string }> {
   try {
     const calendarClient = getCalendarClient(auth)
     const response = await calendarClient.events.insert(
       {
         calendarId,
         sendUpdates: "all",
+        // Google ignores `conferenceData` unless this is 1.
+        conferenceDataVersion: createMeetLink ? 1 : undefined,
         requestBody: {
           id: eventId,
           summary,
@@ -47,13 +57,22 @@ export async function createEvent({
           start: { dateTime: startAt, timeZone },
           end: { dateTime: endAt, timeZone },
           attendees,
+          conferenceData: createMeetLink
+            ? {
+                // The deterministic event id doubles as the idempotency key,
+                // so a retried job never asks Google for a second Meet room.
+                createRequest: {
+                  requestId: eventId,
+                  conferenceSolutionKey: { type: "hangoutsMeet" },
+                },
+              }
+            : undefined,
         },
       },
       { timeout: 60_000 },
     )
-    const parsed = eventResponseSchema.parse(response.data)
 
-    return { eventId: parsed.id }
+    return toCreateEventResult(response.data)
   } catch (error) {
     if (getGaxiosStatus(error) === 409) {
       try {
@@ -62,8 +81,7 @@ export async function createEvent({
           { calendarId, eventId },
           { timeout: 60_000 },
         )
-        const parsed = eventResponseSchema.parse(response.data)
-        return { eventId: parsed.id }
+        return toCreateEventResult(response.data)
       } catch (lookupError) {
         return handleError(lookupError, "getEventAfterCreateConflict")
       }

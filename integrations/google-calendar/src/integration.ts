@@ -47,6 +47,7 @@ const config: IntegrationDefinition<
         timeZone: props.timeZone,
         eventId: props.eventId,
         attendees: props.attendees,
+        createMeetLink: props.createMeetLink,
       }),
     cancelEvent: async ({ ctx, props }) =>
       await cancelEvent({

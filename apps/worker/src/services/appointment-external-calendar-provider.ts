@@ -46,6 +46,7 @@ export async function createGoogleCalendarEvent(input: {
   timeZone: string
   eventId: string
   attendees?: GoogleCalendarEventAttendee[]
+  createMeetLink?: boolean
 }) {
   const { ctx } = await buildGoogleCalendarContext(input)
   return await integrationGoogleCalendar.runAction("createEvent", {
@@ -60,6 +61,7 @@ export async function createGoogleCalendarEvent(input: {
       endAt: input.endAt,
       timeZone: input.timeZone,
       attendees: input.attendees,
+      createMeetLink: input.createMeetLink,
     },
   })
 }

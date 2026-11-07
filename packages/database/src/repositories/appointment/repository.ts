@@ -392,7 +392,12 @@ export const appointmentRepository = {
   },
 
   async markExternalCreateSucceededIfScheduled(
-    input: { workspaceId: string; id: string; externalEventId: string },
+    input: {
+      workspaceId: string
+      id: string
+      externalEventId: string
+      locationDetail?: string
+    },
     tx: DatabaseClient = db,
   ) {
     const [row] = await tx
@@ -400,6 +405,9 @@ export const appointmentRepository = {
       .set({
         externalEventId: input.externalEventId,
         externalSyncStatus: "synced",
+        ...(input.locationDetail
+          ? { locationDetail: input.locationDetail }
+          : {}),
       })
       .where(
         and(

@@ -829,11 +829,14 @@ class AppointmentService extends BaseService {
     workspaceId: string
     appointmentId: string
     externalEventId: string
+    /** Replaces the location, e.g. to add the event's Google Meet link. */
+    locationDetail?: string
   }) {
     return await appointmentRepository.markExternalCreateSucceededIfScheduled({
       workspaceId: input.workspaceId,
       id: input.appointmentId,
       externalEventId: input.externalEventId,
+      locationDetail: input.locationDetail,
     })
   }
 

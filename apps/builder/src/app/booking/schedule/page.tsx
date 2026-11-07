@@ -152,6 +152,10 @@ function PublicMessage({
   )
 }
 
+// Links in the location (e.g. the appointment's Google Meet room) are shown
+// as clickable links.
+const HTTPS_URL_PATTERN = /(https:\/\/\S+)/
+
 function formatDateTime(value: Date, timezone: string, locale: string) {
   return new Intl.DateTimeFormat(locale, {
     dateStyle: "full",
@@ -171,7 +175,27 @@ function formatLocation(
   ) => string,
 ) {
   if (locationDetail) {
-    return locationDetail
+    return (
+      <span className="whitespace-pre-line">
+        {locationDetail.split(HTTPS_URL_PATTERN).map((part, index) =>
+          // `split` with a capture group puts the matched links at odd indexes.
+          index % 2 === 1 ? (
+            <a
+              className="break-all text-primary underline"
+              href={part}
+              // biome-ignore lint/suspicious/noArrayIndexKey: parts never reorder
+              key={index}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {part}
+            </a>
+          ) : (
+            part
+          ),
+        )}
+      </span>
+    )
   }
   if (locationType === "phoneCall") {
     return t("schedule.locationTypes.phoneCall")
