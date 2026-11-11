@@ -174,10 +174,10 @@ const FACEBOOK_OAUTH_BASE = "https://www.facebook.com"
  * a review when the login dialog asks for more than the screencast shows.
  * Comment automation (`pages_manage_engagement`, `pages_read_user_content`),
  * post publishing, ads (`pages_manage_ads`) and CAPI (`page_events`) are off
- * until those scopes are reviewed and added back here.
+ * until those scopes are reviewed and added back here. `email` is left out:
+ * the app has no use case granting it, so Meta's dialog rejects it.
  */
 export const MESSENGER_SCOPES = [
-  "email",
   "public_profile",
   "pages_manage_metadata",
   "pages_read_engagement",
@@ -187,10 +187,10 @@ export const MESSENGER_SCOPES = [
 ]
 
 /**
- * `MESSENGER_SCOPES` minus the two identity-only scopes (`email`,
- * `public_profile` are not Graph permissions and are implicitly present on
- * every token). Used to decide whether a Facebook SSO token already carries
- * every permission the Messenger connect flow would otherwise request, so the
+ * `MESSENGER_SCOPES` minus the identity-only scopes (`email`, `public_profile`
+ * are not Graph permissions and are implicitly present on every token). Used
+ * to decide whether a Facebook SSO token already carries every permission the
+ * Messenger connect flow would otherwise request, so the
  * page-connect step can reuse it instead of re-running OAuth.
  */
 export const MESSENGER_REUSE_REQUIRED_SCOPES = MESSENGER_SCOPES.filter(
