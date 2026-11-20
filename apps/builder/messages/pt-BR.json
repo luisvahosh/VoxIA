@@ -2420,7 +2420,15 @@
       "templateName": "Nome do modelo aprovado",
       "templateNameDescription": "Variáveis do corpo em ordem: nome do contato, telefone do contato, resumo, link. Deixe vazio para enviar texto simples (só é entregue se o agente escreveu para este número nas últimas 24 horas).",
       "templateLanguage": "Código de idioma do modelo",
-      "disableBot": "Pausar o bot nesta conversa"
+      "disableBot": "Pausar o bot nesta conversa",
+      "mode": "Notice type",
+      "modeDescription": "Agent handoff: hands the conversation to a person. Appointment copy: sends the professional the booked appointment (use it in the calendar's confirmation flow).",
+      "modes": {
+        "handoff": "Agent handoff",
+        "appointment": "Appointment copy for the professional"
+      },
+      "appointmentPhoneNumberDescription": "With country code, e.g. +56912345678. The professional receives the patient, date, time and place of each booking. The bot is not paused.",
+      "appointmentTemplateNameDescription": "Body variables in order: patient name, patient phone, date, time, place. Leave empty to send plain text (only delivered if the professional wrote to this number in the last 24 hours)."
     }
   },
   "folders": {

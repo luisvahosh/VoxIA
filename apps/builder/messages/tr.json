@@ -2557,7 +2557,15 @@
       "templateName": "Approved template name",
       "templateNameDescription": "Body variables in order: contact name, contact phone, summary, link. Leave empty to send plain text (only delivered if the agent wrote to this number in the last 24 hours).",
       "templateLanguage": "Template language code",
-      "disableBot": "Pause the bot in this conversation"
+      "disableBot": "Pause the bot in this conversation",
+      "mode": "Notice type",
+      "modeDescription": "Agent handoff: hands the conversation to a person. Appointment copy: sends the professional the booked appointment (use it in the calendar's confirmation flow).",
+      "modes": {
+        "handoff": "Agent handoff",
+        "appointment": "Appointment copy for the professional"
+      },
+      "appointmentPhoneNumberDescription": "With country code, e.g. +56912345678. The professional receives the patient, date, time and place of each booking. The bot is not paused.",
+      "appointmentTemplateNameDescription": "Body variables in order: patient name, patient phone, date, time, place. Leave empty to send plain text (only delivered if the professional wrote to this number in the last 24 hours)."
     }
   },
   "folders": {

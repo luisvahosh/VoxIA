@@ -18,10 +18,20 @@ import { stepTypes } from "./step-action"
  * order: contact name, contact phone, summary, link). Left empty, a plain text
  * is sent instead — Meta only delivers that when the agent wrote to the
  * business number in the last 24 hours.
+ *
+ * `mode: "appointment"` turns the step into a copy of a booking for the
+ * professional (used in an appointment calendar's confirmation flow): no bot
+ * pause and no handoff link; body variables, in order: contact name, contact
+ * phone, appointment date, appointment time, calendar name / location.
  */
+export const notifyAgentModes = z.enum(["handoff", "appointment"])
+
+export type NotifyAgentMode = z.infer<typeof notifyAgentModes>
+
 export const notifyAgentStepSchema = z.object({
   id: zodBigintAsString(),
   stepType: z.literal(stepTypes.enum.notifyAgent),
+  mode: notifyAgentModes.default(notifyAgentModes.enum.handoff),
   phoneNumber: z
     .string()
     .trim()
@@ -39,6 +49,7 @@ export const notifyAgentStepDefaultFn = (
 ): NotifyAgentStepSchema => ({
   id: createId(),
   stepType: stepTypes.enum.notifyAgent,
+  mode: notifyAgentModes.enum.handoff,
   phoneNumber: "",
   templateName: "aviso_agente",
   templateLanguage: "es",

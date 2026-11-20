@@ -2557,7 +2557,15 @@
       "templateName": "Nombre de la plantilla aprobada",
       "templateNameDescription": "Variables del cuerpo en orden: nombre del contacto, teléfono del contacto, resumen, enlace. Déjalo vacío para enviar texto simple (solo llega si el agente escribió a este número en las últimas 24 horas).",
       "templateLanguage": "Código de idioma de la plantilla",
-      "disableBot": "Pausar el bot en esta conversación"
+      "disableBot": "Pausar el bot en esta conversación",
+      "mode": "Tipo de aviso",
+      "modeDescription": "Traspaso a agente: deriva la conversación a una persona. Copia de cita: envía al profesional la cita agendada (úsalo en el flujo de confirmación del calendario).",
+      "modes": {
+        "handoff": "Traspaso a agente",
+        "appointment": "Copia de cita al profesional"
+      },
+      "appointmentPhoneNumberDescription": "Con código de país, ej. +56912345678. El profesional recibe el paciente, la fecha, la hora y el lugar de cada cita. No se pausa el bot.",
+      "appointmentTemplateNameDescription": "Variables del cuerpo en orden: nombre del paciente, teléfono del paciente, fecha, hora, lugar. Déjalo vacío para enviar texto simple (solo llega si el profesional escribió a este número en las últimas 24 horas)."
     }
   },
   "folders": {

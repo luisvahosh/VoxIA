@@ -1,4 +1,5 @@
 import {
+  appointmentService,
   contactService,
   conversationService,
   integrationWhatsappService,
@@ -38,6 +39,40 @@ async function resolveSenderIntegration(
   )
 }
 
+const APPOINTMENT_LOCALE = "es-CL"
+
+/**
+ * The booking copy sent to the professional: date and time in the calendar's
+ * timezone, and where (calendar name, plus its location detail when set).
+ */
+async function buildAppointmentDetails(props: {
+  workspaceId: string
+  appointmentId: string
+}) {
+  const appointment = await appointmentService.findByOrFail({
+    workspaceId: props.workspaceId,
+    id: props.appointmentId,
+  })
+  const timeZone = appointment.calendar.timezone
+  const date = new Intl.DateTimeFormat(APPOINTMENT_LOCALE, {
+    timeZone,
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(appointment.startAt)
+  const time = new Intl.DateTimeFormat(APPOINTMENT_LOCALE, {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(appointment.startAt)
+  const place = [appointment.calendar.name, appointment.locationDetail?.trim()]
+    .filter(Boolean)
+    .join(" - ")
+  return { date, time, place }
+}
+
 /** The contact's last few messages, oldest first, as one line. */
 async function buildSummary(props: {
   workspaceId: string
@@ -61,6 +96,7 @@ export async function handleNotifyAgent(
 ): Promise<ExecuteStepResult> {
   const { step, conversation, contactInbox } = props
   const { workspaceId } = conversation
+  const isAppointmentNotice = step.mode === "appointment"
 
   try {
     const integration = await resolveSenderIntegration(
@@ -75,7 +111,16 @@ export async function handleNotifyAgent(
       }
     }
 
-    if (step.disableBot) {
+    if (isAppointmentNotice && !props.appointmentId) {
+      return {
+        status: "error",
+        result: null,
+        errorMessage:
+          "Appointment notice needs an appointment: use it in an appointment calendar's confirmation flow",
+      }
+    }
+
+    if (step.disableBot && !isAppointmentNotice) {
       await conversationService.disableBotState({
         workspaceId,
         conversations: [conversation],
@@ -99,6 +144,30 @@ export async function handleNotifyAgent(
       PHONE_NUMBER.test(contactInbox.sourceId)
         ? `+${contactInbox.sourceId.replace("+", "")}`
         : contact?.phoneNumber || contactInbox.channel
+
+    if (isAppointmentNotice && props.appointmentId) {
+      const { date, time, place } = await buildAppointmentDetails({
+        workspaceId,
+        appointmentId: props.appointmentId,
+      })
+      await sendAgentNotification({
+        auth: integration.auth as WhatsappAuthValue,
+        phoneNumberId: integration.phoneNumberId,
+        to: step.phoneNumber,
+        templateName: step.templateName || undefined,
+        templateLanguage: step.templateLanguage,
+        bodyParams: [contactName, contactPhone, date, time, place],
+        fallbackText: [
+          `📅 ${contactName} (${contactPhone})`,
+          `${date}, ${time}`,
+          place,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      })
+      return { status: "success", result: { notified: step.phoneNumber } }
+    }
+
     const summary = await buildSummary({
       workspaceId,
       conversationId: conversation.id,

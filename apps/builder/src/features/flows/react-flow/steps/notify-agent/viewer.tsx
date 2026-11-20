@@ -18,6 +18,11 @@ const NotifyAgentStepViewer = ({ data }: { data: NotifyAgentStepSchema }) => {
             icon={BellRingIcon}
             title={t("flows.actions.notifyAgent")}
           />
+          {data.mode === "appointment" ? (
+            <div className="mt-1 truncate text-muted-foreground text-xs">
+              {t("flows.notifyAgent.modes.appointment")}
+            </div>
+          ) : null}
           {data.phoneNumber ? (
             <div className="mt-1 truncate text-muted-foreground text-xs">
               {data.phoneNumber}
