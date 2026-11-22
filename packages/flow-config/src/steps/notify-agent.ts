@@ -23,6 +23,11 @@ import { stepTypes } from "./step-action"
  * professional (used in an appointment calendar's confirmation flow): no bot
  * pause and no handoff link; body variables, in order: contact name, contact
  * phone, appointment date, appointment time, calendar name / location.
+ *
+ * `contactPhone` is where the patient's phone comes from when the channel does
+ * not share it (Instagram, Messenger, webchat, or a WhatsApp user whose number
+ * Meta hides behind a username) — usually a custom field filled by the AI
+ * agent, e.g. `{{telefono}}`. It is saved on the contact when it has none.
  */
 export const notifyAgentModes = z.enum(["handoff", "appointment"])
 
@@ -39,6 +44,7 @@ export const notifyAgentStepSchema = z.object({
   templateName: z.string().trim().default(""),
   templateLanguage: z.string().trim().min(2).default("es"),
   disableBot: z.boolean().default(true),
+  contactPhone: z.string().trim().max(200).default(""),
   states: z.tuple([successStateSchema, errorStateSchema]),
 })
 
@@ -54,6 +60,7 @@ export const notifyAgentStepDefaultFn = (
   templateName: "aviso_agente",
   templateLanguage: "es",
   disableBot: true,
+  contactPhone: "",
   states: [successStateDefaultFn(), errorStateDefaultFn()],
   ...props,
 })

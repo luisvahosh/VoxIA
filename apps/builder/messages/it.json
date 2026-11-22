@@ -2428,7 +2428,9 @@
         "appointment": "Appointment copy for the professional"
       },
       "appointmentPhoneNumberDescription": "With country code, e.g. +56912345678. The professional receives the patient, date, time and place of each booking. The bot is not paused.",
-      "appointmentTemplateNameDescription": "Body variables in order: patient name, patient phone, date, time, place. Leave empty to send plain text (only delivered if the professional wrote to this number in the last 24 hours)."
+      "appointmentTemplateNameDescription": "Body variables in order: patient name, patient phone, date, time, place. Leave empty to send plain text (only delivered if the professional wrote to this number in the last 24 hours).",
+      "contactPhone": "Contact phone if the channel does not share it",
+      "contactPhoneDescription": "Used when the conversation does not bring a phone (Instagram, Messenger, webchat, or a WhatsApp user who hides their number). Insert the custom field where the AI agent saves the phone, e.g. '{{telefono}}'. It is also saved on the contact."
     }
   },
   "folders": {

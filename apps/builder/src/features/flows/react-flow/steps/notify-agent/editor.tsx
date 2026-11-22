@@ -65,6 +65,12 @@ const NotifyAgentStepEditor = (props: NotifyAgentStepEditorProps) => {
           name={`${parentName}.templateLanguage`}
           required
         />
+        <InputField
+          description={t("flows.notifyAgent.contactPhoneDescription")}
+          label={t("flows.notifyAgent.contactPhone")}
+          name={`${parentName}.contactPhone`}
+          placeholder="{{telefono}}"
+        />
         {isAppointmentNotice ? null : (
           <SwitchField
             label={t("flows.notifyAgent.disableBot")}

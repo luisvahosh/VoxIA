@@ -10,6 +10,8 @@ import { signAgentHandoffToken } from "@chatbotx.io/encryption"
 import type { NotifyAgentStepSchema } from "@chatbotx.io/flow-config"
 import type { WhatsappAuthValue } from "@chatbotx.io/integration-whatsapp"
 import { sendAgentNotification } from "@chatbotx.io/integration-whatsapp/api/agent-notification"
+import { contactVariableService } from "@chatbotx.io/variables"
+import { parsePhoneNumberFromString } from "libphonenumber-js"
 import { logger } from "../../lib/logger"
 import type { ExecuteStepProps } from "./flow-utils"
 import type { ExecuteStepResult } from "./step"
@@ -28,7 +30,7 @@ const MAX_SUMMARY_LENGTH = 300
  */
 async function resolveSenderIntegration(
   workspaceId: string,
-  contactInbox: ExecuteStepProps<NotifyAgentStepSchema>["contactInbox"],
+  contactInbox: NotifyAgentProps["contactInbox"],
 ) {
   const integrations =
     await integrationWhatsappService.listByWorkspaceId(workspaceId)
@@ -37,6 +39,81 @@ async function resolveSenderIntegration(
       (integration) => integration.inboxId === contactInbox.inboxId,
     ) ?? integrations[0]
   )
+}
+
+/**
+ * A phone typed by the contact ("+56 9 1234 5678", "912345678") as E.164.
+ * Numbers without a country code take the region of the agent's number (the
+ * same country as the business in practice).
+ */
+function normalizePhone(
+  raw: string | null | undefined,
+  agentPhone: string,
+): string | undefined {
+  const value = raw?.trim()
+  if (!value || value.includes("{{")) {
+    return
+  }
+  const region = parsePhoneNumberFromString(agentPhone)?.country
+  // Do not use isValid(); it rejects well-formed but unassigned numbers.
+  return parsePhoneNumberFromString(value, region)?.number
+}
+
+type NotifyAgentProps = ExecuteStepProps<NotifyAgentStepSchema>
+
+/**
+ * The contact's phone for the agent, never a placeholder: the WhatsApp number,
+ * then the contact's saved phone, then the step's `contactPhone` (a phone the
+ * AI agent asked for, saved on the contact for next time). Only if all are
+ * missing does it fall back to the WhatsApp username or the channel, so the
+ * agent can still find the chat in the inbox.
+ */
+async function resolveContactPhone(
+  props: NotifyAgentProps,
+  contact: Awaited<ReturnType<typeof contactService.findById>>,
+): Promise<string> {
+  const { step, conversation, contactInbox } = props
+  if (
+    contactInbox.channel === "whatsapp" &&
+    PHONE_NUMBER.test(contactInbox.sourceId)
+  ) {
+    return `+${contactInbox.sourceId.replace("+", "")}`
+  }
+  if (contact?.phoneNumber?.trim()) {
+    return contact.phoneNumber.trim()
+  }
+
+  if (step.contactPhone) {
+    const variables = await contactVariableService.getAll({
+      contactId: conversation.contactId,
+      contactInbox,
+      conversation,
+    })
+    const typed = await contactVariableService.replaceAll({
+      text: step.contactPhone,
+      variables,
+    })
+    const phone = normalizePhone(typed, step.phoneNumber)
+    if (phone) {
+      if (contact) {
+        await contactService
+          .update(
+            { workspaceId: conversation.workspaceId, id: contact.id },
+            { phoneNumber: phone },
+          )
+          .catch((error: unknown) =>
+            logger.warn(
+              { err: error, contactId: contact.id },
+              "[handleNotifyAgent] could not save the phone on the contact",
+            ),
+          )
+      }
+      return phone
+    }
+  }
+
+  const username = contactInbox.sourceUsername?.trim()
+  return username ? `WhatsApp @${username}` : contactInbox.channel
 }
 
 const APPOINTMENT_LOCALE = "es-CL"
@@ -92,7 +169,7 @@ async function buildSummary(props: {
 }
 
 export async function handleNotifyAgent(
-  props: ExecuteStepProps<NotifyAgentStepSchema>,
+  props: NotifyAgentProps,
 ): Promise<ExecuteStepResult> {
   const { step, conversation, contactInbox } = props
   const { workspaceId } = conversation
@@ -137,13 +214,7 @@ export async function handleNotifyAgent(
       id: conversation.contactId,
     })
     const contactName = contact?.fullName?.trim() || contactInbox.sourceId
-    // A WhatsApp sourceId is the phone number, unless the contact is known
-    // only by its business-scoped user ID (e.g. "CO.1827…", usernames).
-    const contactPhone =
-      contactInbox.channel === "whatsapp" &&
-      PHONE_NUMBER.test(contactInbox.sourceId)
-        ? `+${contactInbox.sourceId.replace("+", "")}`
-        : contact?.phoneNumber || contactInbox.channel
+    const contactPhone = await resolveContactPhone(props, contact)
 
     if (isAppointmentNotice && props.appointmentId) {
       const { date, time, place } = await buildAppointmentDetails({

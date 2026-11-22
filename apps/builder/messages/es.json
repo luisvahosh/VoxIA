@@ -2565,7 +2565,9 @@
         "appointment": "Copia de cita al profesional"
       },
       "appointmentPhoneNumberDescription": "Con código de país, ej. +56912345678. El profesional recibe el paciente, la fecha, la hora y el lugar de cada cita. No se pausa el bot.",
-      "appointmentTemplateNameDescription": "Variables del cuerpo en orden: nombre del paciente, teléfono del paciente, fecha, hora, lugar. Déjalo vacío para enviar texto simple (solo llega si el profesional escribió a este número en las últimas 24 horas)."
+      "appointmentTemplateNameDescription": "Variables del cuerpo en orden: nombre del paciente, teléfono del paciente, fecha, hora, lugar. Déjalo vacío para enviar texto simple (solo llega si el profesional escribió a este número en las últimas 24 horas).",
+      "contactPhone": "Teléfono del contacto si el canal no lo trae",
+      "contactPhoneDescription": "Se usa cuando la conversación no trae teléfono (Instagram, Messenger, chat web o un usuario de WhatsApp que oculta su número). Pon el campo donde el agente de IA guarda el teléfono, por ejemplo '{{telefono}}'. También se guarda en el contacto."
     }
   },
   "folders": {
