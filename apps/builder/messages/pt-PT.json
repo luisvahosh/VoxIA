@@ -6101,6 +6101,13 @@
     "closedTitle": "Esta conversa voltou para o assistente",
     "closedDescription": "O link não permite mais respostas. Se o cliente precisar de uma pessoa de novo, você receberá um novo aviso.",
     "invalidTitle": "Link inválido",
-    "invalidDescription": "O link expirou ou está incorreto. Peça um novo aviso."
+    "invalidDescription": "O link expirou ou está incorreto. Peça um novo aviso.",
+    "savedReplies": "Saved replies",
+    "savedRepliesPlaceholder": "Use a saved reply…",
+    "sendFlow": "Send a flow",
+    "sendFlowDescription": "The customer receives the flow in this chat (for example, the list of available times).",
+    "flowPlaceholder": "Choose a flow…",
+    "flowSent": "Flow sent.",
+    "flowError": "The flow could not be sent. Try again."
   }
 }

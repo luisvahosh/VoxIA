@@ -1,6 +1,8 @@
 import {
   contactService,
+  flowService,
   messageService,
+  savedReplyService,
   workspaceService,
 } from "@chatbotx.io/business"
 import type { Metadata } from "next"
@@ -9,6 +11,8 @@ import { getTranslations } from "next-intl/server"
 import {
   HandoffChat,
   type HandoffChatMessage,
+  type HandoffFlowOption,
+  type HandoffSavedReply,
 } from "@/features/agent-handoff/components/handoff-chat"
 import { resolveHandoff } from "@/features/agent-handoff/lib/resolve-handoff"
 import { loadWorkspaceMessages } from "@/i18n/workspace-locale"
@@ -19,6 +23,7 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 const MESSAGE_LIMIT = 60
+const FLOW_LIMIT = 200
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("agentHandoff")
@@ -74,15 +79,33 @@ export default async function AgentHandoffPage({
     )
   }
 
-  const contact = await contactService.findById({
-    workspaceId: conversation.workspaceId,
-    id: conversation.contactId,
-  })
-  const { data } = await messageService.listForConversation({
-    workspaceId: conversation.workspaceId,
-    conversationId: conversation.id,
-    limit: MESSAGE_LIMIT,
-  })
+  const [contact, { data }, savedReplies, flows] = await Promise.all([
+    contactService.findById({
+      workspaceId: conversation.workspaceId,
+      id: conversation.contactId,
+    }),
+    messageService.listForConversation({
+      workspaceId: conversation.workspaceId,
+      conversationId: conversation.id,
+      limit: MESSAGE_LIMIT,
+    }),
+    savedReplyService.listByWorkspaceId(conversation.workspaceId),
+    flowService.list({
+      workspaceId: conversation.workspaceId,
+      active: true,
+      perPage: FLOW_LIMIT,
+      sort: [{ id: "name", desc: false }],
+    }),
+  ])
+  const quickReplies: HandoffSavedReply[] = savedReplies.map((reply) => ({
+    id: reply.id,
+    shortcut: reply.shortcut,
+    text: reply.text,
+  }))
+  const flowOptions: HandoffFlowOption[] = flows.data.map((flow) => ({
+    id: flow.id,
+    name: flow.name,
+  }))
   const chatMessages: HandoffChatMessage[] = data
     .filter((message) => message.messageType !== "activity")
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
@@ -116,7 +139,13 @@ export default async function AgentHandoffPage({
         <p className="text-muted-foreground text-sm">{st("subtitle")}</p>
       </header>
       <NextIntlClientProvider locale={locale} messages={messages}>
-        <HandoffChat locale={locale} messages={chatMessages} token={token} />
+        <HandoffChat
+          flows={flowOptions}
+          locale={locale}
+          messages={chatMessages}
+          savedReplies={quickReplies}
+          token={token}
+        />
       </NextIntlClientProvider>
     </main>
   )

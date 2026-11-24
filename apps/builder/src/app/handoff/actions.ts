@@ -1,6 +1,10 @@
 "use server"
 
-import { conversationService, messageService } from "@chatbotx.io/business"
+import {
+  conversationService,
+  flowService,
+  messageService,
+} from "@chatbotx.io/business"
 import { z } from "zod"
 import { resolveHandoff } from "@/features/agent-handoff/lib/resolve-handoff"
 import { actionClient } from "@/lib/safe-action"
@@ -29,6 +33,37 @@ export const sendHandoffReplyAction = actionClient
       conversation,
       contactInbox,
       input: { text: parsedInput.text },
+    })
+    return { sent: true }
+  })
+
+export const sendHandoffFlowAction = actionClient
+  .inputSchema(
+    z.object({
+      token: z.string().min(1),
+      flowId: z.string().min(1),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { conversation, contactInbox, active } = await resolveHandoff(
+      parsedInput.token,
+    )
+    if (!active) {
+      throw new Error("Conversation is back with the assistant")
+    }
+    // The token scopes the workspace: only an active flow of that workspace
+    // can be sent, never one picked by id from another workspace.
+    const flow = await flowService.findActiveById({
+      id: parsedInput.flowId,
+      workspaceId: conversation.workspaceId,
+    })
+    if (!flow) {
+      throw new Error("Flow not found")
+    }
+    await messageService.createOutgoing({
+      conversation,
+      contactInbox,
+      input: { flowId: flow.id },
     })
     return { sent: true }
   })

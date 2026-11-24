@@ -6101,6 +6101,13 @@
     "closedTitle": "Esta conversación volvió al asistente",
     "closedDescription": "El enlace ya no permite responder. Si el cliente vuelve a necesitar a una persona, te llegará un aviso nuevo.",
     "invalidTitle": "Enlace no válido",
-    "invalidDescription": "El enlace venció o es incorrecto. Pide un aviso nuevo."
+    "invalidDescription": "El enlace venció o es incorrecto. Pide un aviso nuevo.",
+    "savedReplies": "Respuestas guardadas",
+    "savedRepliesPlaceholder": "Usar una respuesta guardada…",
+    "sendFlow": "Enviar un flujo",
+    "sendFlowDescription": "El cliente recibe el flujo en este chat (por ejemplo, la lista de horas disponibles).",
+    "flowPlaceholder": "Elige un flujo…",
+    "flowSent": "Flujo enviado.",
+    "flowError": "No se pudo enviar el flujo. Inténtalo de nuevo."
   }
 }

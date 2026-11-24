@@ -6101,6 +6101,13 @@
     "closedTitle": "This conversation is back with the assistant",
     "closedDescription": "The link no longer allows replies. If the customer needs a person again, you will get a new notice.",
     "invalidTitle": "Link not valid",
-    "invalidDescription": "The link expired or is incorrect. Ask for a new notice."
+    "invalidDescription": "The link expired or is incorrect. Ask for a new notice.",
+    "savedReplies": "Saved replies",
+    "savedRepliesPlaceholder": "Use a saved reply…",
+    "sendFlow": "Send a flow",
+    "sendFlowDescription": "The customer receives the flow in this chat (for example, the list of available times).",
+    "flowPlaceholder": "Choose a flow…",
+    "flowSent": "Flow sent.",
+    "flowError": "The flow could not be sent. Try again."
   }
 }
