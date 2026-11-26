@@ -3484,7 +3484,15 @@
     "signUpTitle": "Đăng ký vào {name}",
     "changePasswordTitle": "Đổi mật khẩu",
     "changePasswordDescription": "Đặt mật khẩu mới trước khi tiếp tục.",
-    "passwordChangeSuccess": "Đã đổi mật khẩu"
+    "passwordChangeSuccess": "Đã đổi mật khẩu",
+    "brandPanel": {
+      "eyebrow": "AI patient care",
+      "headline": "Last night at 11 p.m. a patient wrote to you. Who answered?",
+      "subtitle": "Your AI assistant replies on WhatsApp and Instagram, books appointments and hands off to your team when it matters.",
+      "point1": "Answers patients 24/7 on WhatsApp, Instagram and the web",
+      "point2": "Books appointments inside the chat, synced with Google Calendar",
+      "point3": "Hands the conversation to your team with a summary"
+    }
   },
   "emailTopics": {
     "title": "Chủ đề Email"

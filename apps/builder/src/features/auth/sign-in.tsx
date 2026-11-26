@@ -46,7 +46,7 @@ export const SignInForm = ({
 
   return (
     <div className="flex flex-col gap-6" {...props}>
-      <Card>
+      <Card className="border-transparent shadow-lg">
         <CardHeader className="text-center">
           <AuthHeader title={t("auth.signInTitle", { name })} />
         </CardHeader>
@@ -115,8 +115,8 @@ export const SignInForm = ({
       </Card>
 
       <AcceptTermsAndPolicy
-        privacyPolicy={policyUrl ?? "https://chatbotx.io/privacy/"}
-        termsOfService={termsOfServiceUrl ?? "https://chatbotx.io/terms/"}
+        privacyPolicy={policyUrl ?? "/brand/privacy.html"}
+        termsOfService={termsOfServiceUrl ?? "/brand/terms.html"}
       />
     </div>
   )

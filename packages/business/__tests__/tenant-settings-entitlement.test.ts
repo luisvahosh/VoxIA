@@ -82,10 +82,14 @@ describe("resolveTenantSettings — enterprise entitlement gating", () => {
 
     const settings = await resolveTenantSettings({ workspaceId: "workspace-1" })
 
-    expect(settings.name).toBe("ChatbotX")
-    expect(settings.logoLightUrl).toBe(`${BUILDER_URL}/brand/logo_white.svg`)
-    expect(settings.logoDarkUrl).toBe(`${BUILDER_URL}/brand/logo_black.svg`)
-    expect(settings.faviconUrl).toBe(`${BUILDER_URL}/brand/icon_black.svg`)
+    expect(settings.name).toBe("VoxIA")
+    expect(settings.logoLightUrl).toBe(
+      `${BUILDER_URL}/brand/tevari-logo-negativo.svg`,
+    )
+    expect(settings.logoDarkUrl).toBe(
+      `${BUILDER_URL}/brand/tevari-logo-color.svg`,
+    )
+    expect(settings.faviconUrl).toBe(`${BUILDER_URL}/brand/tevari-icon.svg`)
     expect(settings.theme).toBeNull()
     expect(settings.customJS).toBeNull()
     expect(settings.customCSS).toBeNull()

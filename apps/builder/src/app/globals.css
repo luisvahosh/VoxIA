@@ -10,3 +10,108 @@
  */
 @source "../../node_modules/@chatbotx.io/ui";
 @source "../../node_modules/@chatbotx.io/minigame-ui";
+
+/*
+ * Tevari brand theme (the platform keeps the VoxIA name).
+ * Palette and type from tevari.cl: ciruela (text), salvia (primary), rosa
+ * (accent/destructive), arena (secondary), lino (page background), Figtree.
+ * Defining the --shadow-* tokens also switches on every `shadow-*` utility the
+ * UI already uses: they were declared in @chatbotx.io/ui but never given a
+ * value, so the whole app rendered flat.
+ */
+@theme inline {
+  --font-sans: var(--font-figtree), "Helvetica Neue", Arial, sans-serif;
+  --color-tevari-ciruela: #33193a;
+  --color-tevari-rosa: #b24c6e;
+  --color-tevari-salvia: #2f7a6b;
+  --color-tevari-arena: #e9c9bc;
+  --color-tevari-lino: #faf5f2;
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: #faf5f2;
+  --foreground: #33193a;
+  --card: #ffffff;
+  --card-foreground: #33193a;
+  --popover: #ffffff;
+  --popover-foreground: #33193a;
+  --primary: #2f7a6b;
+  --primary-foreground: #ffffff;
+  --secondary: #f3e4dd;
+  --secondary-foreground: #33193a;
+  --muted: #f1e9e5;
+  --muted-foreground: #6e5a73;
+  --accent: #f5ebe6;
+  --accent-foreground: #33193a;
+  --destructive: #b24c6e;
+  --border: #e7dcd7;
+  --input: #e2d5cf;
+  --ring: #2f7a6b;
+  --chart-1: #2f7a6b;
+  --chart-2: #b24c6e;
+  --chart-3: #33193a;
+  --chart-4: #e9a98f;
+  --chart-5: #7fb5a8;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #33193a;
+  --sidebar-primary: #2f7a6b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5ebe6;
+  --sidebar-accent-foreground: #33193a;
+  --sidebar-border: #ece2dd;
+  --sidebar-ring: #2f7a6b;
+
+  --shadow-2xs: 0 1px 1px rgb(51 25 58 / 0.04);
+  --shadow-xs: 0 1px 2px rgb(51 25 58 / 0.06);
+  --shadow-sm: 0 1px 3px rgb(51 25 58 / 0.08), 0 1px 2px rgb(51 25 58 / 0.04);
+  --shadow: 0 2px 6px rgb(51 25 58 / 0.08), 0 1px 2px rgb(51 25 58 / 0.05);
+  --shadow-md: 0 4px 12px rgb(51 25 58 / 0.1), 0 2px 4px rgb(51 25 58 / 0.05);
+  --shadow-lg: 0 10px 24px rgb(51 25 58 / 0.12), 0 4px 8px rgb(51 25 58 / 0.06);
+  --shadow-xl:
+    0 18px 40px rgb(51 25 58 / 0.14), 0 6px 12px rgb(51 25 58 / 0.06);
+  --shadow-2xl: 0 28px 60px rgb(51 25 58 / 0.2);
+}
+
+.dark {
+  --background: #1a1020;
+  --foreground: #f6eef1;
+  --card: #241629;
+  --card-foreground: #f6eef1;
+  --popover: #241629;
+  --popover-foreground: #f6eef1;
+  --primary: #3f9a88;
+  --primary-foreground: #ffffff;
+  --secondary: #3a2540;
+  --secondary-foreground: #f6eef1;
+  --muted: #2e1f33;
+  --muted-foreground: #c4b2bc;
+  --accent: #34233a;
+  --accent-foreground: #f6eef1;
+  --destructive: #d0688a;
+  --border: rgb(255 255 255 / 0.1);
+  --input: rgb(255 255 255 / 0.15);
+  --ring: #3f9a88;
+  --chart-1: #3f9a88;
+  --chart-2: #d0688a;
+  --chart-3: #e9c9bc;
+  --chart-4: #e9a98f;
+  --chart-5: #7fb5a8;
+  --sidebar: #1f1325;
+  --sidebar-foreground: #f6eef1;
+  --sidebar-primary: #3f9a88;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #34233a;
+  --sidebar-accent-foreground: #f6eef1;
+  --sidebar-border: rgb(255 255 255 / 0.08);
+  --sidebar-ring: #3f9a88;
+
+  --shadow-2xs: 0 1px 1px rgb(0 0 0 / 0.2);
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.25);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.3), 0 1px 2px rgb(0 0 0 / 0.2);
+  --shadow: 0 2px 6px rgb(0 0 0 / 0.3), 0 1px 2px rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.35), 0 2px 4px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 10px 24px rgb(0 0 0 / 0.4), 0 4px 8px rgb(0 0 0 / 0.2);
+  --shadow-xl: 0 18px 40px rgb(0 0 0 / 0.45);
+  --shadow-2xl: 0 28px 60px rgb(0 0 0 / 0.55);
+}

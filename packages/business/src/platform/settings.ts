@@ -56,9 +56,11 @@ const buildDefaults = (helpItems: TenantHelpItemModel[]): TenantSettings => {
     wsUrl,
     storageUrl: derived.storageUrl,
     name: "VoxIA",
-    logoLightUrl: `${derived.appUrl}/brand/logo.jpg`,
-    logoDarkUrl: `${derived.appUrl}/brand/logo.jpg`,
-    faviconUrl: `${derived.appUrl}/brand/icon_black.svg`,
+    // Tevari logo (the platform keeps the VoxIA name). "Light" is the white
+    // logo for dark backgrounds; "dark" is the color logo for light ones.
+    logoLightUrl: `${derived.appUrl}/brand/tevari-logo-negativo.svg`,
+    logoDarkUrl: `${derived.appUrl}/brand/tevari-logo-color.svg`,
+    faviconUrl: `${derived.appUrl}/brand/tevari-icon.svg`,
     theme: null,
     customJS: null,
     customCSS: null,
@@ -95,9 +97,9 @@ const applyCustomDomain = (
     appUrl: derived.appUrl,
     wsUrl: derived.wsUrl,
     storageUrl: derived.storageUrl,
-    logoLightUrl: `${derived.appUrl}/brand/logo.jpg`,
-    logoDarkUrl: `${derived.appUrl}/brand/logo.jpg`,
-    faviconUrl: `${derived.appUrl}/brand/icon_black.svg`,
+    logoLightUrl: `${derived.appUrl}/brand/tevari-logo-negativo.svg`,
+    logoDarkUrl: `${derived.appUrl}/brand/tevari-logo-color.svg`,
+    faviconUrl: `${derived.appUrl}/brand/tevari-icon.svg`,
   }
 }
 

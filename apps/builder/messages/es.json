@@ -3484,7 +3484,15 @@
     "signUpTitle": "Sign up un {name}",
     "changePasswordTitle": "Change tu password",
     "changePasswordDescription": "Establecer un nuevo password antes continuing.",
-    "passwordChangeSuccess": "Contraseña cambiada"
+    "passwordChangeSuccess": "Contraseña cambiada",
+    "brandPanel": {
+      "eyebrow": "Atención con IA para clínicas",
+      "headline": "Anoche, a las 23:00, un paciente le escribió. ¿Quién le respondió?",
+      "subtitle": "Tu asistente con IA responde por WhatsApp e Instagram, agenda citas y deriva a tu equipo cuando hace falta.",
+      "point1": "Responde a tus pacientes 24/7 por WhatsApp, Instagram y la web",
+      "point2": "Agenda citas dentro del chat, sincronizadas con Google Calendar",
+      "point3": "Deriva la conversación a tu equipo con un resumen"
+    }
   },
   "emailTopics": {
     "title": "Correo Topics"

@@ -25,7 +25,8 @@ export const AuthHeader = ({ title }: AuthHeaderProps) => {
 
   return (
     <>
-      <div className="flex items-center justify-center gap-4">
+      {/* On desktop the brand panel of the auth layout already shows the logo. */}
+      <div className="flex items-center justify-center gap-4 lg:hidden">
         {mounted ? (
           <Image
             alt={name}
@@ -39,7 +40,9 @@ export const AuthHeader = ({ title }: AuthHeaderProps) => {
         )}
       </div>
 
-      <CardTitle className="text-slate-600 text-xl">{title}</CardTitle>
+      <CardTitle className="font-semibold text-foreground text-xl">
+        {title}
+      </CardTitle>
     </>
   )
 }

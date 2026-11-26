@@ -1,5 +1,6 @@
 import { UiProvider } from "@chatbotx.io/ui"
 import type { Metadata, Viewport } from "next"
+import { Figtree } from "next/font/google"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale } from "next-intl/server"
 import type { ReactNode } from "react"
@@ -16,6 +17,14 @@ import { getUserTimezone } from "@/lib/timezone"
 import "./globals.css"
 import "./themes.css"
 import { DirectionProvider } from "@chatbotx.io/ui/components/ui/direction"
+
+// Tevari brand typeface; exposed as --font-figtree for the --font-sans token
+// in globals.css.
+const figtree = Figtree({
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  variable: "--font-figtree",
+})
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -63,7 +72,12 @@ export default async function RootLayout({ children }: Props) {
   const pancakeChatPageId = env.NEXT_PUBLIC_PANCAKE_CHAT_PAGE_ID
 
   return (
-    <html dir={dir} lang={locale} suppressHydrationWarning>
+    <html
+      className={figtree.variable}
+      dir={dir}
+      lang={locale}
+      suppressHydrationWarning
+    >
       <head>
         <PublicEnvScript />
         {isBuilderDomain && pancakeChatPageId && (
